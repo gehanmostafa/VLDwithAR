@@ -1,11 +1,15 @@
 
+import SearchBar from '@/components/common/Searchbar';
 import { Button } from '@/components/ui/button';
+
 import React from 'react';
+
 
 
 export default function Page() {
   return (
-    <div className="bg-teal-500 min-h-[70vh]  py-10">
+    <div className="  bg-mainbackground min-h-[70vh]  pt-9">
+   <SearchBar/>
       <div className="container mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="col-span-1 md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-6">
