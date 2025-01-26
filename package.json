@@ -10,6 +10,10 @@
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.1",
+    "a-frame": "^0.0.0",
+    "aframe": "^1.6.0",
+    "aframe-event-set-component": "^5.1.0",
+    "aframe-physics-system": "^4.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.468.0",
@@ -22,6 +26,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@types/aframe": "^1.2.7",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
