@@ -1,5 +1,5 @@
+  
  
-  "use client";
 import React, { useState, useEffect } from "react";
 import "aframe";
 import "aframe-event-set-component";
@@ -26,7 +26,7 @@ export default function RoomEditor() {
   ];
 
   const handleAddItem = (itemSrc) => {
-    const model = { id: modelId, src: itemSrc, position: "0 0 2", scale: "0.05 0.5 0.3" };
+    const model = { id: modelId, src: itemSrc, position: "0 0 2", scale: "0.05 0.5 0.3", rotation: "0 0 0" };
     setModels([...models, model]);
     setSelectedModelId(model.id);
     setModelId(modelId + 1);
@@ -42,11 +42,79 @@ export default function RoomEditor() {
     setSelectedModelId(id);
   };
 
-  const handleMoveItem = (id, position) => {
-    const newModels = models.map((model) => 
-      model.id === id ? { ...model, position } : model
-    );
+  const handleMoveItem = (id, direction) => {
+    const newModels = models.map((model) => {
+      if (model.id === id) {
+        const currentPosition = parsePosition(model.position);
+        switch (direction) {
+          case 'forward':
+            currentPosition.z -= 1;
+            break;
+          case 'backward':
+            currentPosition.z += 1;
+            break;
+          case 'left':
+            currentPosition.x -= 1;
+            break;
+          case 'right':
+            currentPosition.x += 1;
+            break;
+          default:
+            break;
+        }
+        return { ...model, position: stringifyPosition(currentPosition) };
+      }
+      return model;
+    });
     setModels(newModels);
+  };
+
+  const handleRotateItem = (id, direction) => {
+    const newModels = models.map((model) => {
+      if (model.id === id) {
+        const currentRotation = AFRAME.utils.coordinates.parse(model.rotation);
+        const newRotation = { ...currentRotation, y: currentRotation.y + (direction === 'left' ? -45 : 45) };
+        return { ...model, rotation: AFRAME.utils.coordinates.stringify(newRotation) };
+      }
+      return model;
+    });
+    setModels(newModels);
+  };
+
+  const handleScaleItem = (id, direction) => {
+    const newModels = models.map((model) => {
+      if (model.id === id) {
+        const currentScale = AFRAME.utils.coordinates.parse(model.scale);
+        const scaleFactor = direction === 'increase' ? 1.1 : 0.9;
+        const newScale = { x: currentScale.x * scaleFactor, y: currentScale.y * scaleFactor, z: currentScale.z * scaleFactor };
+        return { ...model, scale: AFRAME.utils.coordinates.stringify(newScale) };
+      }
+      return model;
+    });
+    setModels(newModels);
+  };
+
+  const parsePosition = (positionStr) => {
+    const [x, y, z] = positionStr.split(" ").map(Number);
+    return { x, y, z };
+  };
+
+  const stringifyPosition = (position) => {
+    return `${position.x} ${position.y} ${position.z}`;
+  };
+
+  const handleDuplicateItem = () => {
+    const selectedItem = models.find((model) => model.id === selectedModelId);
+    if (selectedItem) {
+      const newModel = { ...selectedItem, id: modelId };
+      const currentPosition = parsePosition(selectedItem.position);
+      const newPosition = { ...currentPosition, x: currentPosition.x + 1 }; // Shift position to the right
+      newModel.position = stringifyPosition(newPosition);
+
+      setModels([...models, newModel]);
+      setSelectedModelId(newModel.id);
+      setModelId(modelId + 1);
+    }
   };
 
   return (
@@ -73,7 +141,7 @@ export default function RoomEditor() {
       {/* Main Scene */}
       <div className="flex-1 relative">
         <a-scene embedded physics>
-          {/* الغرفة */}
+          {/* Room */}
           <a-entity
             gltf-model="/childs_room_day_house_room.glb"
             position="0 30 0"
@@ -81,7 +149,7 @@ export default function RoomEditor() {
             static-body
           ></a-entity>
 
-          {/* الأرضية */}
+          {/* Floor */}
           <a-plane
             position="0 -1 0"
             rotation="-90 0 0"
@@ -91,15 +159,16 @@ export default function RoomEditor() {
             static-body
           ></a-plane>
 
-          {/* العناصر المختارة */}
+          {/* Selected Items */}
           {models.map((model) => (
             <a-entity
               key={model.id}
               gltf-model={model.src}
               position={model.position}
+              rotation={model.rotation}
               scale={model.scale}
-              class="draggable"
-              draggable // Enable drag-and-drop for the item
+              className="draggable"
+              draggable // Enable drag-and-drop
               events={{
                 mousedown: () => this.setAttribute('dynamic-body', ''),
                 mouseup: () => this.removeAttribute('dynamic-body'),
@@ -109,7 +178,7 @@ export default function RoomEditor() {
             ></a-entity>
           ))}
 
-          {/* الكاميرا */}
+          {/* Camera */}
           <a-camera
             position="0 0 4"
             look-controls
@@ -117,14 +186,74 @@ export default function RoomEditor() {
           ></a-camera>
         </a-scene>
 
-        {/* Button to remove selected item */}
+        {/* Control Panel for Moving Item */}
         {selectedModelId !== null && (
-          <button
-            className="absolute bottom-4 right-4 bg-red-500 text-white p-2 rounded"
-            onClick={() => handleRemoveItem(selectedModelId)}
-          >
-            Remove Selected Item
-          </button>
+          <div className="absolute bottom-4 right-4 bg-opacity-70 bg-gray-800 p-4 rounded-lg flex flex-col space-y-3">
+            <button
+              className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+              onClick={() => handleRemoveItem(selectedModelId)}
+            >
+              Remove
+            </button>
+            <button
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+              onClick={handleDuplicateItem}
+            >
+              Duplicate
+            </button>
+            <button
+              className="bg-yellow-500 text-black px-4 py-2 rounded-lg hover:bg-yellow-600"
+              onClick={() => handleRotateItem(selectedModelId, 'left')}
+            >
+              Rotate Left
+            </button>
+            <button
+              className="bg-yellow-500 text-black px-4 py-2 rounded-lg hover:bg-yellow-600"
+              onClick={() => handleRotateItem(selectedModelId, 'right')}
+            >
+              Rotate Right
+            </button>
+            <button
+              className="bg-green-500 text-black px-4 py-2 rounded-lg hover:bg-green-600"
+              onClick={() => handleScaleItem(selectedModelId, 'increase')}
+            >
+              Scale Up
+            </button>
+            <button
+              className="bg-green-500 text-black px-4 py-2 rounded-lg hover:bg-green-600"
+              onClick={() => handleScaleItem(selectedModelId, 'decrease')}
+            >
+              Scale Down
+            </button>
+            <button
+              className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600"
+              onClick={() => handleMoveItem(selectedModelId, 'forward')}
+            >
+              Move Backward
+              
+            </button>
+            <button
+              className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600"
+              onClick={() => handleMoveItem(selectedModelId, 'backward')}
+            >
+              
+              Move Forward
+            </button>
+            <button
+              className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600"
+              onClick={() => handleMoveItem(selectedModelId, 'left')}
+            >
+              Move Right
+              
+            </button>
+            <button
+              className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600"
+              onClick={() => handleMoveItem(selectedModelId, 'right')}
+            >
+              
+              Move Left
+            </button>
+          </div>
         )}
       </div>
     </div>
