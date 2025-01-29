@@ -1,6 +1,9 @@
 "use client"
-import RoomEditor from '@/components/common/Test'
-import ThreeDViewer from '@/components/common/ThreeDViewer'
+
+import TestThreejs from '@/components/common/testThreejs'
+// import RoomEditor from '@/components/common/Test'
+
+// import ThreeDViewer from '@/components/common/ThreeDViewer'
 import React from 'react'
 // import dynamic from "next/dynamic";
 
@@ -8,9 +11,12 @@ import React from 'react'
 const page = () => {
   return (
     <div>
-        <ThreeDViewer/>
-        <RoomEditor/>
-      
+      {/* <ThreeDViewer/> */}
+      <TestThreejs />
+      {/* <RoomEditor/> */}
+
+      {/* <AFrameScene /> */}
+
     </div>
   )
 }

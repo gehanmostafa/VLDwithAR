@@ -1,5 +1,4 @@
-  
- 
+"use client"
 import React, { useState, useEffect } from "react";
 import "aframe";
 import "aframe-event-set-component";
@@ -229,29 +228,25 @@ export default function RoomEditor() {
               className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600"
               onClick={() => handleMoveItem(selectedModelId, 'forward')}
             >
-              Move Backward
-              
+              Move Forward
             </button>
             <button
               className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600"
               onClick={() => handleMoveItem(selectedModelId, 'backward')}
             >
-              
-              Move Forward
+              Move Backward
             </button>
             <button
               className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600"
               onClick={() => handleMoveItem(selectedModelId, 'left')}
             >
-              Move Right
-              
+              Move Left
             </button>
             <button
               className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600"
               onClick={() => handleMoveItem(selectedModelId, 'right')}
             >
-              
-              Move Left
+              Move Right
             </button>
           </div>
         )}

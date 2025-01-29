@@ -30,7 +30,7 @@
      "**/*.jsx",
     ".next/types/**/*.ts",
     "src/components/common/ThreeDViewer.jsx"
-  ],
+, "src/components/common/testThreejs.jsx"  ],
   "exclude": ["node_modules"]
 }
 
