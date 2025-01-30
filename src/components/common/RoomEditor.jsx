@@ -25,7 +25,7 @@ export default function RoomEditor() {
   ];
 
   const handleAddItem = (itemSrc) => {
-    const model = { id: modelId, src: itemSrc, position: "0 0 2", scale: "0.05 0.5 0.3", rotation: "0 0 0" };
+    const model = { id: modelId, src: itemSrc, position: "0 0 2", scale: "1 1 1", rotation: "0 0 0" };
     setModels([...models, model]);
     setSelectedModelId(model.id);
     setModelId(modelId + 1);
@@ -119,7 +119,7 @@ export default function RoomEditor() {
   return (
     <div className="bg-mainbackground min-h-[100vh] flex">
       {/* Sidebar */}
-      <div className="w-1/4 bg-secbackground p-4 space-y-4">
+      <div className="w-1/4 bg-secbackground p-4 space-y-4 border border-mainbackground">
         <h2 className="text-white text-lg mb-4">Items</h2>
         {items.map((item, index) => (
           <div

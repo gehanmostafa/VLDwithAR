@@ -1,7 +1,5 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import SearchBar from '@/components/common/Searchbar';
@@ -9,7 +7,7 @@ import SearchBar from '@/components/common/Searchbar';
 export default function Home() {
   const [modelSrc, setModelSrc] = useState(null);
 
-  // استرجاع الرابط المخزن في localStorage
+
   useEffect(() => {
     const savedModelSrc = localStorage.getItem("modelSrc");
     if (savedModelSrc) {
@@ -21,7 +19,7 @@ export default function Home() {
     <div className="bg-mainbackground min-h-[70vh] py-9">
       <SearchBar />
       <div className="container mx-auto flex flex-col justify-between items-center md:flex-row gap-6 mt-6 w-[70%]">
-        
+
         <div className="grid grid-cols-3 gap-4 w-full md:w-1/3">
           {[
             { src: "/storage.webp", category: "Shelf" },
@@ -46,7 +44,7 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col items-center w-full md:w-2/3">
-          {/* عرض الصورة في البداية */}
+         
           {!modelSrc ? (
             <img
               src="/main2Home.jpg"
@@ -55,11 +53,11 @@ export default function Home() {
             />
           ) : (
             <div className="w-full h-[300px] flex justify-center items-center">
-              {/* عرض مشهد A-Frame بحجم صغير داخل المساحة */}
+
               <a-scene embedded>
                 <a-entity
                   gltf-model={modelSrc}
-                  scale="0.3 0.3 0.3" 
+                  scale="0.3 0.3 0.3"
                   position="50 -50 4"
                 />
                 <a-camera position="0 1.6 0" rotation="0 0 0"></a-camera>
@@ -87,5 +85,4 @@ export default function Home() {
     </div>
   );
 }
-
 
