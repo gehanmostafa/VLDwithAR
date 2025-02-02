@@ -1,5 +1,5 @@
 
-import { Input } from "postcss";
+
 import { IoSearchOutline } from "react-icons/io5"; 
 
 const SearchBar = () => {

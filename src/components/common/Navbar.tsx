@@ -7,7 +7,7 @@ export default function Navbar() {
   const isActive = (path: string) => pathname === path;
 
   return (
-    <nav className="bg-mainbackground py-5 px-36 p-5">
+    <nav className="bg-mainbackground py-5 px-36 p-5 relative z-20 ">
       <div className="container mx-auto flex justify-between items-center">
         <div className="text-white text-lg font-bold">
           <Link href="/home">
@@ -58,9 +58,9 @@ export default function Navbar() {
               Contact Us
             </span>
           </Link>
-          <Link href="/design">
+          <Link href="/uploadIMG">
             <span
-             className={`cursor-pointer ${isActive("/design")
+             className={`cursor-pointer ${isActive("/uploadIMG")
               ? " text-white font-semibold border-b-2 py-1 border-white"
               : "text-white hover:text-white"
             }`}
