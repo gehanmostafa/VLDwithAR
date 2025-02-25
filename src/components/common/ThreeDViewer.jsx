@@ -18,8 +18,8 @@ const ThreeDViewer = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-[40vh] bg-secbackground p-4">
-      <h1 className="text-2xl font-bold text-mainbackground mb-6">Upload and Display 3D Model</h1>
+    <div className="flex flex-col items-center justify-center h-[50vh] bg-mainbackground p-4 w-full">
+      <h1 className="text-2xl font-bold text-secbackground mb-6">Upload and Display 3D Model</h1>
       <label className="relative cursor-pointer bg-white border border-gray-300 rounded-lg shadow-sm px-6 py-3 text-gray-700 hover:bg-gray-50 transition-all">
         <span className="font-medium">Choose a 3D Model</span>
         <input
