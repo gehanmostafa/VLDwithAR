@@ -6,7 +6,6 @@ export default function ArViewerClient() {
     const viewerRef = useRef(null);
     const [modelUrl, setModelUrl] = useState('');
     const [modelName, setModelName] = useState('');
-    const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
     const [isARSupported, setIsARSupported] = useState(false);
     const searchParams = useSearchParams();
@@ -53,14 +52,9 @@ export default function ArViewerClient() {
         }
     };
 
-    const handleModelLoad = () => {
-        setIsLoading(false);
-    };
-
     const handleModelError = (e) => {
         console.error('Model loading error:', e);
         setError('Failed to load 3D model');
-        setIsLoading(false);
     };
 
     if (error) {
@@ -101,20 +95,8 @@ export default function ArViewerClient() {
                     </button>
                 </div>
             </div>
-
-            {/* Loading State */}
-            {isLoading && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-2xl p-8 text-center">
-                        <div className="animate-spin text-4xl mb-4">⏳</div>
-                        <h2 className="text-xl font-semibold text-gray-800 mb-2">Loading...</h2>
-                        <p className="text-gray-600">Preparing your 3D model</p>
-                    </div>
-                </div>
-            )}
-
             {/* AR Support Warning */}
-            {!isARSupported && !isLoading && (
+            {!isARSupported  && (
                 <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 m-4">
                     <div className="flex items-center">
                         <div className="text-2xl mr-3">⚠️</div>
@@ -156,7 +138,6 @@ export default function ArViewerClient() {
                                         minHeight: '400px',
                                         backgroundColor: '#f8fafc'
                                     }}
-                                    onLoad={handleModelLoad}
                                     onError={handleModelError}
                                     loading="eager"
                                     reveal="auto"
