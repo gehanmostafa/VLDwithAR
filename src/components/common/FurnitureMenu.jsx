@@ -148,7 +148,7 @@ export default function FurnitureMenu({
         </select>
       </div>
 
-      <div className="max-h-[77vh] overflow-y-auto bg-white custom-scrollbar p-6 sm:p-8 rounded-2xl shadow-xl">
+      <div className="max-h-[77vh] overflow-y-auto bg-white custom-scrollbar  p-6 sm:p-8 rounded-2xl shadow-xl">
         {/* زر الرفع */}
         <div className="my-3 flex justify-center">
           <motion.div whileHover={{ scale: 1.1 }}>
@@ -169,7 +169,7 @@ export default function FurnitureMenu({
         </div>
 
         {/* العناصر */}
-        <div className="flex flex-col items-center gap-6">
+        <div className="flex flex-col items-center gap-6  p-9 ">
           {filteredItems.map((item, index) => (
             <FurnitureItem
               key={item._id}

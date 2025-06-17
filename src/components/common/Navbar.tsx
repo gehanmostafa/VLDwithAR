@@ -10,7 +10,7 @@ export default function Navbar() {
   const isActive = (path: string) => pathname === path;
 
   const navItems = [
-    { href: "/home", label: "Home" },
+    { href: "/", label: "Home" },
     { href: "/products", label: "Products" },
     { href: "/blog", label: "Blog" },
     { href: "/contactus", label: "Contact Us" },
@@ -18,7 +18,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="bg-[#0d4c3e] py-5 px-4 md:px-36 relative z-20 shadow-md">
+    <nav className="bg-mainbackground py-5 px-4 md:px-36 relative z-20 shadow-md">
       <div className="container mx-auto flex justify-between items-center">
         {/* Logo */}
         <div className="text-white text-xl font-bold">
@@ -71,14 +71,14 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden mt-4 bg-[#0d4c3e] px-4 py-4 space-y-2 rounded-b-lg shadow-lg transition-all duration-300">
+        <div className="md:hidden mt-4 bg-mainbackground px-4 py-4 space-y-2 rounded-b-lg shadow-lg transition-all duration-300">
           {navItems.map(({ href, label }) => (
             <Link key={href} href={href}>
               <span
                 className={`block text-white text-base px-3 py-2 rounded-md transition-all duration-200 ${
                   isActive(href)
-                    ? "bg-white text-[#0d4c3e] font-semibold"
-                    : "hover:bg-white hover:text-[#0d4c3e]"
+                    ? "bg-white text-mainbackground font-semibold"
+                    : "hover:bg-white hover:text-mainbackground"
                 }`}
               >
                 {label}

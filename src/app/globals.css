@@ -2,13 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
+
+/* Scrollbar styling for the whole site */
+body::-webkit-scrollbar {
+  width: 12px;
+  transition: all 0.3s ease-in-out;
+  overflow-x: hidden;
 }
-/* globals.css */
-/* تخصيص شريط التمرير */
+
+body::-webkit-scrollbar-track {
+  background: #ffffff;
+  border-radius: 10px;
+}
+
+body::-webkit-scrollbar-thumb {
+  background-color: #0D4C3E;
+  border-radius: 10px;
+  border: 2px solid #ffffff;
+  background-clip: content-box;
+  transition: background-color 0.3s ease-in-out, border 0.3s ease-in-out;
+}
+
+body::-webkit-scrollbar-thumb:hover {
+  background-color: #0b3f33;
+  border: 2px solid #e0e0e0;
+  cursor:pointer;
+}
+
+
+
 .custom-scrollbar::-webkit-scrollbar {
-  width: 10px;
+  width: 11px;
+overflow-x: hidden;
+  transition: all 0.3s ease-in-out;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -17,22 +43,31 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #d1d1d1;
+  background-color: #0D4C3E;
   border-radius: 10px;
   border: 2px solid #ffffff;
   background-clip: content-box;
+  transition: background-color 0.3s ease-in-out, border 0.3s ease-in-out;
 }
 
-/* تنسيق شريط التمرير لفايرفوكس */
+/* عند الـ hover على الـ thumb */
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #0b3f33; /* أغمق شوية */
+  border: 2px solid #e0e0e0;
+  cursor: pointer;
+}
+
+/* لفايرفوكس */
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: #d1d1d1 #ffffff;
+  scrollbar-color: #0D4C3E #ffffff;
+  scroll-behavior: smooth; /* حركة تمرير ناعمة */
 }
 
 
 @layer base {
   :root {
-   --mainColor: #003f63  ;
+   --mainColor: #0D4C3E ;
    --secColor : #ffff ;
    --textMainColor : #000000;
     --background: 0 0% 100%;

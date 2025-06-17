@@ -1,563 +1,209 @@
-"use client";
-import useGetProducts from "@/hooks/useGetProducts";
-import usePostArFile from "@/hooks/usePostArFile";
-import useRoomBound from "@/hooks/useRoomBounds";
-import FurnitureMenu from "@/components/common/FurnitureMenu"
-import ControlMenu from "@/components/common/ControlMenu";
-import MeasurementTool from "@/components/common/MeasurementTool";
-import { motion } from "framer-motion";
-import React, { useState, useEffect, useRef } from "react";
+ 
+'use client';
+import Link from 'next/link';
 
-export default function page() {
-  useRoomBound();
-  const [models, setModels] = useState([]);
-  const [selectedItem, setSelectedItem] = useState(null)
-  const [qrCodeData, setQrCodeData] = useState(null);
-  const [showQRPopup, setShowQRPopup] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
-  const [dimContainerPos, setDimContainerPos] = useState(null);
-  const [dimensionsText, setDimensionsText] = useState({
-    width: "",
-    height: "",
-    depth: "",
-  });
-  const [modelSrc, setModelSrc] = useState(null);
-  const [selectedModelId, setSelectedModelId] = useState(null);
-  const [cursorPos, setCursorPos] = useState("0 1 0");
-  const [menuPosition, setMenuPosition] = useState(null);
-  const [modelId, setModelId] = useState(0);
-  const furnitureFileInputRef = useRef(null);
-  const [showDimensionPopup, setShowDimensionPopup] = useState(false);
-  const { data, isLoading, error } = useGetProducts()
-  const { mutate } = usePostArFile()
- const [showMeasurementTool, setShowMeasurementTool] = useState(false);
-  const handleAddItem = (itemSrc) => {
-    const model = {
-      id: modelId.toString(),
-      src: itemSrc,
-      position: cursorPos,
-      scale: "1 1 1",
-      rotation: "0 0 0",
-    };
-    setModels([...models, model]);
-    setSelectedModelId(null);
-    setMenuPosition(null);
-    setShowDimensionPopup(false);
-    setShowMenu(false);
-    setModelId(modelId + 1);
-  };
+import React, { useEffect, useState } from 'react';
+import StartButton from '../components/ui/StartButton';
 
-  const handleRemoveItem = (id) => {
-    const newModels = models.filter((model) => model.id !== id);
-    setModels(newModels);
-    setSelectedModelId(null);
-    setMenuPosition(null);
-    setShowDimensionPopup(false);
-    setShowMenu(false);
-  };
 
-  const handleRotateItem = (id, direction) => {
-    const newModels = models.map((model) => {
-      if (model.id === id) {
-        const currentRotation = AFRAME.utils.coordinates.parse(model.rotation || "0 0 0");
-        const newRotation = {
-          ...currentRotation,
-          y: currentRotation.y + (direction === "left" ? -45 : 45),
-        };
-        return {
-          ...model,
-          rotation: AFRAME.utils.coordinates.stringify(newRotation),
-        };
-      }
-      return model;
-    });
-    setModels(newModels);
-  };
 
-  const handleScaleItem = (id, direction) => {
-    const newModels = models.map((model) => {
-      if (model.id === id) {
-        const currentScale = AFRAME.utils.coordinates.parse(model.scale);
-        const scaleFactor = direction === "increase" ? 1.1 : 0.9;
-        const newScale = {
-          x: Math.min(1.8, Math.max(0.8, currentScale.x * scaleFactor)),
-          y: Math.min(1.8, Math.max(0.8, currentScale.y * scaleFactor)),
-          z: Math.min(1.8, Math.max(0.8, currentScale.z * scaleFactor)),
-        };
-        return { ...model, scale: AFRAME.utils.coordinates.stringify(newScale) };
-      }
-      return model;
-    });
-    setModels(newModels);
-  };
 
-  const handleDuplicateItem = () => {
-    const selectedItem = models.find((model) => model.id === selectedModelId);
-    if (selectedItem) {
-      const newModel = { ...selectedItem, id: modelId.toString() };
-      const currentPosition = selectedItem.position.split(" ").map(Number);
-      const newPosition = `${currentPosition[0] + 1} ${currentPosition[1]} ${currentPosition[2]}`;
-      newModel.position = newPosition;
-      setModels([...models, newModel]);
-      setSelectedModelId(newModel.id);
-      setModelId(modelId + 1);
-    }
-  };
-
-  function projectToScreen(vec, camera) {
-    const projected = vec.clone().project(camera);
-    const x = (projected.x * 0.5 + 0.5) * window.innerWidth;
-    const y = (-projected.y * 0.5 + 0.5) * window.innerHeight;
-    return { x, y };
-  }
-
-  // Update dimension popup container to follow the model.
-  useEffect(() => {
-    let animId;
-    const updateDimPopupPosition = () => {
-      if (showDimensionPopup && selectedModelId) {
-        const modelEl = document.getElementById(selectedModelId);
-        const cameraEl = document.querySelector("a-camera");
-        const cameraObj = cameraEl && cameraEl.getObject3D("camera");
-        if (modelEl && cameraObj) {
-          // Compute the top-center of the model's bounding box.
-          const box = new THREE.Box3().setFromObject(modelEl.object3D);
-          const topCenter = new THREE.Vector3(
-            (box.min.x + box.max.x) / 2,
-            box.max.y,
-            (box.min.z + box.max.z) / 2
-          );
-          const proj = projectToScreen(topCenter, cameraObj);
-          // Position the container slightly above the top-center.
-          setDimContainerPos({ left: proj.x, top: proj.y - 40 });
-          // Update dimensions text using the mesh bounding box.
-          const mesh = modelEl.getObject3D("mesh");
-          if (mesh) {
-            const meshBox = new THREE.Box3().setFromObject(mesh);
-            const min = meshBox.min;
-            const max = meshBox.max;
-            setDimensionsText({
-              width: `Width: ${(max.x - min.x).toFixed(2)}`,
-              height: `Height: ${(max.y - min.y).toFixed(2)}`,
-              depth: `Length: ${(max.z - min.z).toFixed(2)}`,
-            });
-          }
-        }
-      }
-      animId = requestAnimationFrame(updateDimPopupPosition);
-    };
-    updateDimPopupPosition();
-    return () => cancelAnimationFrame(animId);
-  }, [showDimensionPopup, selectedModelId, models]);
-
-  const clearAllBoundingBoxes = () => {
-    models.forEach((model) => {
-      const modelEl = document.getElementById(model.id);
-      if (modelEl && modelEl.hasAttribute("bounding-box-helper")) {
-        modelEl.removeAttribute("bounding-box-helper");
-      }
-    });
-  };
-
-  // When the Dimensions button is clicked, activate the popup and add the bounding-box-helper.
-  const handleShowDimensions = (id) => {
-    setShowDimensionPopup(true);
-    clearAllBoundingBoxes();
-    const modelEl = document.getElementById(id);
-    if (modelEl && !modelEl.hasAttribute("bounding-box-helper")) {
-      // Add the bounding box helper to the model.
-      modelEl.setAttribute("bounding-box-helper", "");
-    }
-  };
-
-  const handleFloorClick = (evt) => {
-    let point = null;
-    if (evt.detail && evt.detail.intersection) {
-      point = evt.detail.intersection.point;
-    } else {
-      const mouse = new THREE.Vector2();
-      mouse.x = (evt.clientX / window.innerWidth) * 2 - 1;
-      mouse.y = -(evt.clientY / window.innerHeight) * 2 + 1;
-      const sceneEl = document.querySelector("a-scene");
-      const camera = sceneEl.camera;
-      const raycaster = new THREE.Raycaster();
-      raycaster.setFromCamera(mouse, camera);
-      const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-      point = new THREE.Vector3();
-      raycaster.ray.intersectPlane(plane, point);
-    }
-    if (point) {
-      const newPos = `${point.x.toFixed(2)} ${point.y.toFixed(2)} ${point.z.toFixed(2)}`;
-      setCursorPos(newPos);
-    }
-    setSelectedModelId(null);
-    setMenuPosition(null);
-    setShowDimensionPopup(false);
-    // ✅ إخفاء المينيو عند النقر على الأرضية
-    setShowMenu(false);
-  };
-
-  useEffect(() => {
-    const sceneEl = document.querySelector("a-scene");
-    if (sceneEl) {
-      sceneEl.addEventListener("click", handleFloorClick);
-    }
-    return () => {
-      if (sceneEl) {
-        sceneEl.removeEventListener("click", handleFloorClick);
-      }
-    };
-  }, []);
-
-  if (typeof AFRAME !== "undefined") {
-    if (!AFRAME.components["drag-drop"]) {
-      AFRAME.registerComponent("drag-drop", {
-        schema: {},
-        init: function () {
-          this.dragging = false;
-          this.offset = new AFRAME.THREE.Vector3();
-          this.cameraEl = null;
-          // Save original scale of the object.
-          this.originalScale = {
-            x: this.el.object3D.scale.x,
-            y: this.el.object3D.scale.y,
-            z: this.el.object3D.scale.z,
-          };
-          // Set initial bottom offset.
-          this.initialBottomOffset = 0;
-          // Bind event handlers.
-          this.onMouseDown = this.onMouseDown.bind(this);
-          this.onMouseMove = this.onMouseMove.bind(this);
-          this.onMouseUp = this.onMouseUp.bind(this);
-          this.el.addEventListener("mousedown", this.onMouseDown);
-        },
-        onMouseDown: function (evt) {
-          evt.stopPropagation();
-          evt.preventDefault();
-          this.dragging = true;
-          // Update scale.
-          this.originalScale = {
-            x: this.el.object3D.scale.x,
-            y: this.el.object3D.scale.y,
-            z: this.el.object3D.scale.z,
-          };
-          // Pause camera controls.
-          this.cameraEl = this.el.sceneEl.querySelector("[camera]");
-          if (this.cameraEl && this.cameraEl.components["look-controls"]) {
-            this.cameraEl.components["look-controls"].pause();
-          }
-          // Calculate offset.
-          if (evt.detail && evt.detail.intersection) {
-            this.offset.copy(this.el.object3D.position).sub(evt.detail.intersection.point);
-            this.offset.y = 0;
-          } else {
-            this.offset.set(0, 0, 0);
-          }
-          // Calculate initial bottom offset based on object's bounding box.
-          const mesh = this.el.getObject3D("mesh");
-          if (mesh) {
-            const bbox = new AFRAME.THREE.Box3().setFromObject(this.el.object3D);
-            this.initialBottomOffset = this.el.object3D.position.y - bbox.min.y;
-          } else {
-            this.initialBottomOffset = 0;
-          }
-          window.addEventListener("mousemove", this.onMouseMove);
-          window.addEventListener("mouseup", this.onMouseUp);
-        },
-        onMouseMove: function (evt) {
-          if (!this.dragging) return;
-          evt.preventDefault();
-          const mouse = new AFRAME.THREE.Vector2();
-          mouse.x = (evt.clientX / window.innerWidth) * 2 - 1;
-          mouse.y = -(evt.clientY / window.innerHeight) * 2 + 1;
-          const camera = this.el.sceneEl.camera;
-          const raycaster = new AFRAME.THREE.Raycaster();
-          raycaster.setFromCamera(mouse, camera);
-          let intersectionPoint = null;
-          // Try to intersect with the floor.
-          const floorEl = document.getElementById("floor");
-          if (floorEl) {
-            const intersects = raycaster.intersectObject(floorEl.object3D, true);
-            if (intersects.length > 0) {
-              intersectionPoint = intersects[0].point;
-            }
-          }
-          // If no floor, use a horizontal plane at y=0.
-          if (!intersectionPoint) {
-            const plane = new AFRAME.THREE.Plane(new AFRAME.THREE.Vector3(0, 1, 0), 0);
-            intersectionPoint = new AFRAME.THREE.Vector3();
-            if (raycaster.ray.intersectPlane(plane, intersectionPoint) === null) {
-              return;
-            }
-          }
-          const targetPos = intersectionPoint.clone().add(this.offset);
-          // Apply room boundaries if defined.
-          if (window.roomBounds) {
-            const box = new AFRAME.THREE.Box3().setFromObject(this.el.object3D);
-            const halfWidth = (box.max.x - box.min.x) / 2;
-            const halfDepth = (box.max.z - box.min.z) / 2;
-            const wallThickness = 0.5;
-            const backMargin = 0.2;
-            targetPos.x = Math.min(
-              Math.max(targetPos.x, window.roomBounds.minX + halfWidth),
-              window.roomBounds.maxX - halfWidth
-            );
-            targetPos.z = Math.min(
-              Math.max(
-                targetPos.z,
-                window.roomBounds.minZ + wallThickness + halfDepth + backMargin
-              ),
-              window.roomBounds.maxZ - halfDepth
-            );
-          } else {
-            const safeBoundary = 3.5;
-            targetPos.x = Math.max(-safeBoundary, Math.min(targetPos.x, safeBoundary));
-            targetPos.z = Math.max(-safeBoundary, Math.min(targetPos.z, safeBoundary));
-          }
-          // Maintain the original y position.
-          targetPos.y = this.el.object3D.position.y;
-          this.el.setAttribute("position", `${targetPos.x} ${targetPos.y} ${targetPos.z}`);
-          // Reset scale.
-          this.el.object3D.scale.set(
-            this.originalScale.x,
-            this.originalScale.y,
-            this.originalScale.z
-          );
-        },
-        onMouseUp: function (evt) {
-          this.dragging = false;
-          window.removeEventListener("mousemove", this.onMouseMove);
-          window.removeEventListener("mouseup", this.onMouseUp);
-          if (this.cameraEl && this.cameraEl.components["look-controls"]) {
-            this.cameraEl.components["look-controls"].play();
-          }
-        },
-        remove: function () {
-          this.el.removeEventListener("mousedown", this.onMouseDown);
-          window.removeEventListener("mousemove", this.onMouseMove);
-          window.removeEventListener("mouseup", this.onMouseUp);
-        },
-      });
-    }
-
-    // Updated bounding-box-helper using THREE.Box3Helper
-    if (!AFRAME.components["bounding-box-helper"]) {
-      AFRAME.registerComponent("bounding-box-helper", {
-        schema: {
-          // Default color set to bastel green.
-          color: { type: "color", default: "#4CAF50" },
-        },
-        init: function () {
-          // Create a Box3 to compute the object's bounding box.
-          this.box = new THREE.Box3();
-          // Create a Box3Helper that visualizes the computed box.
-          this.helper = new THREE.Box3Helper(this.box, this.data.color);
-          this.el.sceneEl.object3D.add(this.helper);
-        },
-        tick: function () {
-          if (this.helper) {
-            // Ensure the object's world matrices are up-to-date.
-            this.el.object3D.updateMatrixWorld(true);
-            // Recompute the bounding box.
-            this.box.setFromObject(this.el.object3D);
-            // Display helper as long as the box is not empty.
-            this.helper.visible = !this.box.isEmpty();
-          }
-        },
-        remove: function () {
-          if (this.helper) {
-            this.el.sceneEl.object3D.remove(this.helper);
-            this.helper = null;
-          }
-        },
-      });
-    }
-  }
-
-  const handleModelClick = (evt, model) => {
-    evt.stopPropagation();
-    setSelectedModelId(model.id);
-    setMenuPosition({ x: 0, y: 0 });
-    setShowDimensionPopup(false);
-    // ✅ إظهار المينيو عند اختيار عنصر
-    setShowMenu(true);
-
-    const src = model.src;
-    const matchedItem = data.find((item) =>
-      src.includes(item.name) || src === item.arFileUrl
-    );
-    if (matchedItem) {
-      setSelectedItem(matchedItem);
-      console.log("✅ Selected Item Set:", matchedItem);
-    } else {
-      console.warn("❌ No matching item found for:", src);
-    }
-  };
-
-  const handleFurnitureButtonClick = () => {
-    if (furnitureFileInputRef.current) {
-      furnitureFileInputRef.current.click();
-    }
-  };
-
-  // Handler for uploading custom furniture.
-  const handleFurnitureUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      const model = {
-        id: modelId.toString(),
-        src: url,
-        position: cursorPos,
-        scale: "1 1 1",
-        rotation: "0 0 0",
-      };
-      setModels([...models, model]);
-      setModelId(modelId + 1);
-    }
-  };
-
-  useEffect(() => {
-    const savedModelSrc = localStorage.getItem("modelSrc");
-    if (savedModelSrc) {
-      setModelSrc(savedModelSrc);
-    }
-  }, []);
-
-  // Ensure that the model is positioned above the ground.
-  const enforceAboveGround = (modelEl) => {
-    if (!modelEl) return;
-    const mesh = modelEl.getObject3D("mesh");
-    if (!mesh) return;
-    const box = new THREE.Box3().setFromObject(mesh);
-    let floorY = 0;
-    let groundHeight = 0.144896;
-    if (!modelEl.dataset.initialized) {
-      modelEl.dataset.initialMinY = box.min.y;
-      modelEl.dataset.initialScaleY = modelEl.object3D.scale.y;
-      modelEl.dataset.initialized = "true";
-    }
-    const initialMinY = parseFloat(modelEl.dataset.initialMinY);
-    const initialScaleY = parseFloat(modelEl.dataset.initialScaleY);
-    let scaleFactor = modelEl.object3D.scale.y / initialScaleY;
-    let adjustedMinY = initialMinY * scaleFactor;
-    modelEl.object3D.position.y += floorY + groundHeight - adjustedMinY;
-  };
-
-  useEffect(() => {
-    models.forEach((model) => {
-      const modelEl = document.getElementById(model.id);
-      if (modelEl && !modelEl.getAttribute("position-adjusted")) {
-        modelEl.addEventListener("model-loaded", () => {
-          enforceAboveGround(modelEl);
-          modelEl.setAttribute("position-adjusted", "true");
-        });
-        modelEl.addEventListener("scale-changed", () => {
-          enforceAboveGround(modelEl);
-        });
-      }
-    });
-  }, [models]);
-
+const HomeContent = () => {
   return (
- <div className="flex flex-col md:flex-row h-screen w-screen overflow-hidden">
-
-      {/* Sidebar: Furniture Menu */}
-     <div className="w-full md:w-1/3 lg:w-1/4 bg-white p-2 shadow-md overflow-y-auto h-1/2 md:h-auto">
-
-        <FurnitureMenu
-          items={data}
-          onAddItem={handleAddItem}
-          onUploadClick={handleFurnitureButtonClick}
-          furnitureFileInputRef={furnitureFileInputRef}
-          handleFurnitureUpload={handleFurnitureUpload}
-          mutate={mutate}
-          setSelectedItem={setSelectedItem}
-        />
-      </div>
-      
-        <div className="mt-2 p-1 border-t">
-          <button
-            onClick={() => setShowMeasurementTool(!showMeasurementTool)}
-            className={`w-full p-2 rounded-lg border-1 transition-all ${
-              showMeasurementTool
-                ? 'bg-blue-100 border-blue-500 text-blue-700'
-                : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
-            }`}
+    <main className="bg-[#0d4c3e] font-sans text-white">
+      {/* ---------- Hero Section ---------- */}
+      <section className="relative">
+        <div className="w-full h-[300px] sm:h-[400px] md:h-[500px] overflow-hidden">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            className="w-full h-full object-cover object-center"
           >
-            📏MeasurementTool
+            <source src="/1.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
+
+        <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
+          <div className="max-w-2xl text-white drop-shadow-lg">
+            <p className="uppercase text-xs sm:text-sm tracking-widest mb-2">Interior Design</p>
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold leading-tight mb-4">
+              Flexible Solutions for<br />Your Home Design
+            </h1>
+            <p className="text-sm sm:text-base mb-6">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent malesuada facilisis maximus.
+            </p>
+
+            {/* Start Now Button */}
+            <div className="flex justify-center">
+          <StartButton/>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ---------- Reasons Section ---------- */}
+      <section className="py-14 px-4 sm:px-6 md:px-10 bg-[#0d4c3e] text-white">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-6 col-span-full">
+            Reasons to choose Wardiere Inc.
+          </h2>
+
+          {[ 
+            {
+              tag: '#AR',
+              title: 'Augmented Reality',
+              text: 'Our AR technology allows customers to preview their furniture in a virtual room.',
+            },
+            {
+              tag: '#AI',
+              title: 'Artificial Intelligence',
+              text: 'Our AI algorithm recommends designs based on your style and room layout.',
+            },
+            {
+              tag: '#Free',
+              title: 'Design Consultations',
+              text: 'Get expert advice and design consultations free of charge.',
+            },
+          ].map(({ tag, title, text }, i) => (
+            <div
+              key={i}
+              className="bg-[#E5F2F8] text-[#0d4c3e] px-6 py-8 rounded-xl transition-transform duration-300 transform hover:scale-[1.03] hover:shadow-xl h-full"
+            >
+              <p className="font-semibold text-sm mb-2">{tag}</p>
+              <h3 className="font-bold text-lg mb-1">{title}</h3>
+              <p className="text-sm">{text}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-10 max-w-6xl mx-auto flex justify-center md:justify-end">
+          <button className="group relative flex items-center gap-3 bg-white text-[#0d4c3e] px-6 sm:px-8 py-2 sm:py-3 rounded-full font-semibold transition-all duration-300 hover:pl-10 hover:shadow-md">
+            <span className="transition-all duration-300">Sign up</span>
+            <span className="text-xl transition-transform duration-300 group-hover:translate-x-1">
+              ➜
+            </span>
           </button>
         </div>
-      {/* Main 3D Scene Area */}
-      <div className="flex-grow relative bg-gray-100">
-        {modelSrc ? (
-          <a-scene embedded physics className="w-full h-full rounded-lg shadow-lg">
-            <a-entity gltf-model={modelSrc} position="0 0 0" scale="1 1 1" static-body></a-entity>
-            <a-plane 
-  id="floor"
-  position="0 0 0" 
-  rotation="-90 0 0" 
-  width="10" 
-  height="10" 
-  opacity="0"
-  material="transparent: true"
-  className="clickable-floor"
-></a-plane>
-            {models.map((model) => (        
-              <a-entity
-                drag-drop
-                key={model.id}
-                gltf-model={model.src}
-                position={model.position}
-                rotation={model.rotation}
-                scale={model.scale}
-                id={model.id}
-                className="clickable-item"
-                onClick={(evt) => handleModelClick(evt, model)}
-              />
-            ))}
-            <a-camera position="0 1.6 4">
-              <a-cursor
-                raycaster="objects: .clickable-item, .clickable-floor; showLine: true"
-                material="opacity: 0.5"
-                scale="2.5 2.5 2.5"
-              ></a-cursor>
-            </a-camera>
-          </a-scene>
-        ) : (
-          <img
-            src="/main2Home.jpg"
-            alt="Main Furniture"
-            className="w-full h-full object-cover"
-          />
-        )}
- <MeasurementTool isVisible={showMeasurementTool} />
-        {/* ✅ Floating Control Menu - يظهر فقط عندما showMenu = true */}
-        {showMenu && menuPosition && selectedModelId && (
-          <div className="absolute top-4 right-4 z-10">
-            <ControlMenu
-              dimensionsText={dimensionsText}
-              dimContainerPos={dimContainerPos}
-              showDimensionPopup={showDimensionPopup}
-              position={menuPosition}
-              onRotate={(dir) => handleRotateItem(selectedModelId, dir)}
-              onScale={(dir) => handleScaleItem(selectedModelId, dir)}
-              onDuplicate={handleDuplicateItem}
-              onDelete={() => handleRemoveItem(selectedModelId)}
-              handleShowDimensions={() => handleShowDimensions(selectedModelId)}
-              selectedModelId={selectedModelId}
-              selectedItem={selectedItem}
-              items={data}
-              mutate={mutate}
-              setMenuPosition={setMenuPosition}
-              setQrCodeData={setQrCodeData}
-              setShowQRPopup={setShowQRPopup}
-              setShowMenu={setShowMenu} // ✅ تمرير الدالة هنا
-            />
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+      </section>
 
+      {/* ---------- Testimonial Section ---------- */}
+      <section className="bg-[#0d4c3e] py-16 px-4 sm:px-6">
+        <div className="bg-[#E5F2F8] max-w-6xl mx-auto rounded-xl px-4 sm:px-6 py-10 sm:py-12">
+          <h2 className="text-xl sm:text-2xl font-bold text-[#0d4c3e] text-center mb-10">Customer Testimonial</h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {[ 
+              {
+                name: 'Olivia Wilson',
+                role: 'Founder of Roodle',
+                comment: 'Awesome tool!',
+                feedback: 'Lorem ipsum praesent ac massa quisque sodales quis erat euismod.',
+              },
+              {
+                name: 'Matt Zhang',
+                role: 'UI/UX Lead',
+                comment: 'Super cool!',
+                feedback: "I use this every day — it's insanely useful and smooth.",
+              },
+              {
+                name: 'Hannah Morales',
+                role: 'COO at BeeView',
+                comment: 'Loved it!',
+                feedback: 'A must-have tool for creatives and developers. Just wow.',
+              },
+            ].map(({ name, role, comment, feedback }, i) => (
+              <div
+                key={i}
+                className="bg-[#0d4c3e] text-white rounded-xl p-6 min-h-[300px] flex flex-col justify-between shadow-lg hover:scale-105 transition-transform duration-300"
+              >
+                <div>
+                  <div className="text-3xl text-white mb-2">“</div>
+                  <p className="text-lg font-bold">{comment}</p>
+                  <p className="text-sm mt-2 mb-4 leading-relaxed text-white/80">{feedback}</p>
+                  <div className="flex text-yellow-400 text-lg">★★★★★</div>
+                </div>
+                <div className="flex items-center gap-3 mt-4">
+                  <img src="/olivia.jpeg" alt={name} className="w-10 h-10 rounded-full object-cover" />
+                  <div>
+                    <p className="font-bold text-sm">{name}</p>
+                    <p className="text-xs text-white/60">{role}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ---------- Contact Section with Main Color Card ---------- */}
+      <section className="bg-[#0d4c3e] py-16 px-4">
+        <div className="bg-[#E5F2F8] max-w-6xl mx-auto rounded-xl px-4 sm:px-6 py-12">
+          <h2 className="text-[#0d4c3e] text-lg sm:text-xl font-bold mb-10 flex items-center gap-2">
+            <span className="w-4 h-4 bg-[#0d4c3e] rounded-sm"></span>
+            Contact Us
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+            {/* Layered Image Stack */}
+            <div className="relative w-fit mx-auto group">
+              <img
+                src="/blue bedroom.jpeg"
+                alt="Back"
+                className="absolute top-0 left-0 w-[280px] sm:w-[360px] h-[200px] sm:h-[240px] object-cover rounded-xl shadow-md transform rotate-[-10deg] -translate-x-14 translate-y-12 opacity-70 scale-90 transition-all duration-700 ease-in-out z-0 
+                group-hover:translate-x-2 group-hover:translate-y-4 group-hover:rotate-[-3deg] group-hover:opacity-100 group-hover:scale-100"
+              />
+              <img
+                src="/blue.jpeg"
+                alt="Middle"
+                className="absolute top-0 left-0 w-[280px] sm:w-[360px] h-[200px] sm:h-[240px] object-cover rounded-xl shadow-lg transform rotate-[-5deg] -translate-x-6 translate-y-6 opacity-80 scale-95 transition-all duration-700 ease-in-out 
+                z-10 group-hover:z-30 group-hover:translate-x-0 group-hover:-translate-y-4 group-hover:rotate-[0deg] group-hover:scale-[1.05] group-hover:opacity-100"
+              />
+              <img
+                src="/blue bedroom.jpeg"
+                alt="Front"
+                className="relative w-[280px] sm:w-[360px] h-[200px] sm:h-[240px] object-cover rounded-xl shadow-2xl transform rotate-[2deg] transition-all duration-700 ease-in-out 
+                z-20 group-hover:z-10 group-hover:translate-x-2 group-hover:-translate-y-2 group-hover:brightness-90"
+              />
+            </div>
+
+            {/* 💚 Contact Card with Main Color */}
+            <div className="relative w-full max-w-md mx-auto bg-[#0d4c3e] rounded-2xl p-6 sm:p-8 text-white shadow-2xl space-y-5 border border-[#ffffff22] flex flex-col items-center justify-center h-[340px]">
+              <div className="text-center space-y-4">
+                <h3 className="text-lg font-semibold">Let's get in touch</h3>
+                {[ 
+                  { icon: '📞', text: '2834-45-75' },
+                  { icon: '✉️', text: 'hello@jferltj' },
+                  { icon: '📍', text: 'home.str .djf' },
+                  { icon: '🌐', text: 'www.ekfj.com' },
+                ].map(({ icon, text }, i) => (
+                  <div key={i} className="flex items-center gap-3 justify-center text-sm border-b border-white/20  last:border-b-0 pb-2">
+                    <span className="text-lg">{icon}</span>
+                    <p>{text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+};
+
+const Home = () => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
+  return <HomeContent />;
+};
+
+export default Home;

@@ -82,7 +82,7 @@ export default function ARViewer() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100">
+        <div className="min-h-screen bg-gradient-to-br from-mainbackground to-purple-100">
             {/* Header */}
             <div className="bg-white shadow-lg p-4">
                 <div className="max-w-4xl mx-auto flex items-center justify-between">

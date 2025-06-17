@@ -35,7 +35,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-mainbackground`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-mainbackground overflow-x-hidden`}
       >
         <QueryClientProvider client={queryClient}>
           <Navbar />

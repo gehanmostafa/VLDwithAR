@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
+
 import { useRouter } from "next/navigation";
 
 const ThreeDViewer = () => {
@@ -21,7 +21,7 @@ const ThreeDViewer = () => {
       const fileURL = URL.createObjectURL(file);
       setModelSrc(fileURL);
       localStorage.setItem("modelSrc", fileURL);
-      router.push("/");
+      router.push("/arPage");
     }
   };
 
