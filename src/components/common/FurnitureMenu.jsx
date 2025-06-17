@@ -85,6 +85,7 @@ import SearchBar from "@/components/common/Searchbar";
 import { motion } from "framer-motion";
 import FurnitureItem from "@/components/common/FurnitureItem"
 
+
 export default function FurnitureMenu({
   items,
   onAddItem,
