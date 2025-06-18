@@ -7,6 +7,7 @@ export default function ArViewerClient() {
     const [modelName, setModelName] = useState('');
     const [error, setError] = useState('');
     const [isARSupported, setIsARSupported] = useState(false);
+    
     const searchParams = useSearchParams();
 
     useEffect(() => {
