@@ -98,6 +98,7 @@ export default function FurnitureMenu({
 }) {
   const [filterText, setFilterText] = useState("");
   const [sortOrder, setSortOrder] = useState("asc"); // "asc" or "desc"
+  console.log(items)
 
   const handleItemClick = (item) => {
     mutate(item.name, {
