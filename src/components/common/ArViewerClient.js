@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-
 export default function ArViewerClient() {
     const viewerRef = useRef(null);
     const [modelUrl, setModelUrl] = useState('');
@@ -117,31 +116,29 @@ export default function ArViewerClient() {
                         {/* Model Viewer */}
                         {modelUrl && (
                             <div className="relative">
-                                <model-viewer
-                                    ref={viewerRef}
-                                    src={modelUrl}
-                                    alt={modelName}
-                                    ar
-                                    ar-modes="webxr scene-viewer quick-look"
-                                    ar-scale="auto"
-                                    camera-controls
-                                    touch-action="pan-y"
-                                    auto-rotate
-                                    auto-rotate-delay="3000"
-                                    rotation-per-second="30deg"
-                                    environment-image="neutral"
-                                    shadow-intensity="1"
-                                    shadow-softness="0.5"
-                                    style={{
-                                        width: '100%',
-                                        height: '70vh',
-                                        minHeight: '400px',
-                                        backgroundColor: '#f8fafc'
-                                    }}
-                                    onError={handleModelError}
-                                    loading="eager"
-                                    reveal="auto"
-                                >
+                    <model-viewer
+    ref={viewerRef}
+    src={modelUrl}
+    alt={modelName}
+    ar
+    ar-modes="webxr scene-viewer quick-look"
+    ar-scale="auto"
+    camera-controls
+    touch-action="pan-y"
+    environment-image="neutral"
+    shadow-intensity="1"
+    shadow-softness="0.5"
+    style={{
+        width: '100%',
+        height: '70vh',
+        minHeight: '400px',
+        backgroundColor: '#f8fafc'
+    }}
+    onError={handleModelError}
+    loading="eager"
+    reveal="auto"
+>
+
                                     {/* AR Button */}
                                     <button 
                                         slot="ar-button"
@@ -214,19 +211,7 @@ export default function ArViewerClient() {
                                     <span>🔄</span>
                                     Reset Camera
                                 </button>
-                                
-                                <button 
-                                    onClick={() => {
-                                        const viewer = viewerRef.current;
-                                        if (viewer) {
-                                            viewer.autoRotate = !viewer.autoRotate;
-                                        }
-                                    }}
-                                    className="bg-green-500 text-white px-4 py-2 rounded-full text-sm hover:bg-green-600 transition-colors flex items-center gap-2"
-                                >
-                                    <span>🔄</span>
-                                    Toggle Auto-Rotate
-                                </button>
+                            
                                 
                                 <button 
                                     onClick={() => {

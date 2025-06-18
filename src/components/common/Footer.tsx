@@ -68,7 +68,7 @@ export default function Footer() {
       </div>
 
       <div className="text-center text-sm text-gray-500 mt-6">
-        © Wardiere Inc. All Rights Reserved 2023 | Terms & Conditions
+        © Wardiere Inc. All Rights Reserved 2025 | Terms & Conditions
       </div>
     </footer>
   );
