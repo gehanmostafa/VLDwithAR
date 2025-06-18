@@ -71,7 +71,7 @@ const HomeContent = () => {
           ].map(({ tag, title, text }, i) => (
             <div
               key={i}
-              className="bg-[#E5F2F8] text-[#0d4c3e] px-6 py-8 rounded-xl transition-transform duration-300 transform hover:scale-[1.03] hover:shadow-xl h-full"
+              className="bg-white text-[#0d4c3e] px-6 py-8 rounded-xl transition-transform duration-300 transform hover:scale-[1.03] hover:shadow-xl h-full"
             >
               <p className="font-semibold text-sm mb-2">{tag}</p>
               <h3 className="font-bold text-lg mb-1">{title}</h3>
@@ -92,7 +92,7 @@ const HomeContent = () => {
 
       {/* ---------- Testimonial Section ---------- */}
       <section className="bg-[#0d4c3e] py-16 px-4 sm:px-6">
-        <div className="bg-[#E5F2F8] max-w-6xl mx-auto rounded-xl px-4 sm:px-6 py-10 sm:py-12">
+        <div className="bg-white max-w-6xl mx-auto rounded-xl px-4 sm:px-6 py-10 sm:py-12">
           <h2 className="text-xl sm:text-2xl font-bold text-[#0d4c3e] text-center mb-10">Customer Testimonial</h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -141,7 +141,7 @@ const HomeContent = () => {
 
       {/* ---------- Contact Section with Main Color Card ---------- */}
       <section className="bg-[#0d4c3e] py-16 px-4">
-        <div className="bg-[#E5F2F8] max-w-6xl mx-auto rounded-xl px-4 sm:px-6 py-12">
+        <div className="bg-white max-w-6xl mx-auto rounded-xl px-4 sm:px-6 py-12">
           <h2 className="text-[#0d4c3e] text-lg sm:text-xl font-bold mb-10 flex items-center gap-2">
             <span className="w-4 h-4 bg-[#0d4c3e] rounded-sm"></span>
             Contact Us

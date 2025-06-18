@@ -23,7 +23,7 @@ export default function Navbar() {
         {/* Logo */}
         <div className="text-white text-xl font-bold">
           <Link href="/home">
-            <span className="hover:cursor-pointer">Roomi AR.</span>
+            <span className="hover:cursor-pointer">DesignAR</span>
           </Link>
         </div>
 

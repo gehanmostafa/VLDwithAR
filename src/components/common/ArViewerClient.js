@@ -116,13 +116,14 @@ export default function ArViewerClient() {
                         {/* Model Viewer */}
                         {modelUrl && (
                             <div className="relative">
-                    <model-viewer
+                                <model-viewer
     ref={viewerRef}
     src={modelUrl}
     alt={modelName}
     ar
     ar-modes="webxr scene-viewer quick-look"
-    ar-scale="auto"
+    ar-placement="floor"
+    ar-scale="fixed"
     camera-controls
     touch-action="pan-y"
     environment-image="neutral"
@@ -138,6 +139,7 @@ export default function ArViewerClient() {
     loading="eager"
     reveal="auto"
 >
+
 
                                     {/* AR Button */}
                                     <button 

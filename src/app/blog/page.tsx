@@ -5,9 +5,9 @@ const blogItems = [
   { id: 1, title: 'design 1', author: 'Amy', image: '/1.jpg' },
   { id: 2, title: 'design 2', author: 'Alex', image: '/2.jpg' },
   { id: 3, title: 'design 3', author: 'Nora', image: '/3.jpg' },
-  { id: 4, title: 'design 4', author: 'Khalid', image: '/1.jpg' },
-  { id: 5, title: 'design 5', author: 'Sina', image: '/2.jpg' },
-  { id: 6, title: 'design 6', author: 'Naomi', image: '/3.jpg' },
+  { id: 4, title: 'design 4', author: 'Khalid', image: '/5.jpg' },
+  { id: 5, title: 'design 5', author: 'Sina', image: '/6.jpg' },
+  { id: 6, title: 'design 6', author: 'Naomi', image: '/7.jpg' },
 ];
 
 export default function BlogPage() {
@@ -24,7 +24,7 @@ export default function BlogPage() {
             className="rounded-xl w-full h-auto object-cover"
           />
           <div className="space-y-4">
-            <h1 className="text-3xl sm:text-4xl font-bold">2024 home decor trends</h1>
+            <h1 className="text-3xl sm:text-4xl font-bold">2025 home decor trends</h1>
             <p className="text-sm sm:text-base text-white/90">
               Sample text. Click to select the text box. Click again or double click to start editing the text. Duis aute
               irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Suspendisse
