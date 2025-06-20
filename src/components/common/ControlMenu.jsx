@@ -111,7 +111,7 @@ export default function ControlMenu({
 
                 let x = (center.x * 0.5 + 0.5) * window.innerWidth;
                 let y = (-center.y * 0.5 + 0.5) * window.innerHeight;
-
+                y = y - 130;
                 const margin = 20;
                 x = Math.max(margin, Math.min(x, window.innerWidth - margin));
                 y = Math.max(margin, Math.min(y, window.innerHeight - margin));
