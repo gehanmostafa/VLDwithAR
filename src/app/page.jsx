@@ -49,7 +49,7 @@ const HomeContent = () => {
       <section className="py-14 px-4 sm:px-6 md:px-10 bg-[#0d4c3e] text-white">
         <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
           <h2 className="text-2xl sm:text-3xl font-bold mb-6 col-span-full">
-            Reasons to choose Wardiere Inc.
+            Reasons to choose Wardiere Incaaaaaaaaaaaaaa.
           </h2>
 
           {[ 
