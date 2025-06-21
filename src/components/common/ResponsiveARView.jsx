@@ -108,7 +108,7 @@ const ResponsiveARView = ({
             <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
               <div className="flex items-center gap-2">
                 <Menu size={20} className="text-mainbackground" />
-                <h3 className="text-lg font-semibold text-gray-800">الأثاث</h3>
+                <h3 className="text-lg font-semibold text-gray-800">Add Furniture</h3>
               </div>
               <button
                 onClick={() => setShowMobileFurnitureMenu(false)}
