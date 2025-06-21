@@ -627,8 +627,9 @@ export default function BlogPage() {
               />
               <div className="bg-[#0d4c3e] text-white p-4 space-y-2">
                 <h3 className="text-lg font-semibold capitalize">{title}</h3>
-                <p className="text-sm text-white/90">Sample text. Click to select the text box.</p>
-                <p className="text-xs italic text-white/60">By {author}</p>
+                <p className="text-sm text-white/90">Sample text. Click to select the text box  
+                  .</p>
+                <p className="text-xs italic text-white/60"  >By {author}</p>
               </div>
             </div>
           ))}
