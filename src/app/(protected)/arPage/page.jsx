@@ -5,7 +5,8 @@ import useRoomBound from "@/hooks/useRoomBounds";
 import FurnitureMenu from "@/components/common/FurnitureMenu"
 import ControlMenu from "@/components/common/ControlMenu";
 import MeasurementTool from "@/components/common/MeasurementTool";
-
+import MobileResponsiveControlMenu from '@/components/common/MobileResponsiveControlMenu';
+import ResponsiveARView from '@/components/common/ResponsiveARView';
 import  { useState, useEffect, useRef } from "react";
 
 export default function page() {
@@ -31,6 +32,36 @@ export default function page() {
   const { data, isLoading, error } = useGetProducts()
   const { mutate } = usePostArFile()
   const [showMeasurementTool, setShowMeasurementTool] = useState(false);
+
+
+const handleTouchStart = (e) => {
+  draggingRef.current = true;
+  const touch = e.touches[0];
+  lastTouchRef.current = { x: touch.clientX, y: touch.clientY };
+  e.preventDefault();
+};
+
+const handleTouchMove = (e) => {
+  if (!draggingRef.current) return;
+  const touch = e.touches[0];
+  const dx = touch.clientX - lastTouchRef.current.x;
+  const dy = touch.clientY - lastTouchRef.current.y;
+  lastTouchRef.current = { x: touch.clientX, y: touch.clientY };
+
+  setCursorPosition((prev) => ({
+    x: prev.x + dx * 0.01,
+    y: Math.min(Math.max(prev.y - dy * 0.01, 0.5), 3),
+    z: prev.z,
+  }));
+
+  e.preventDefault();
+};
+
+const handleTouchEnd = () => {
+  draggingRef.current = false;
+};
+
+
   const handleAddItem = (itemSrc) => {
     const model = {
       id: modelId.toString(),
@@ -46,6 +77,7 @@ export default function page() {
     setShowMenu(false);
     setModelId(modelId + 1);
   };
+  
 
   const handleRemoveItem = (id) => {
     const newModels = models.filter((model) => model.id !== id);
@@ -110,6 +142,7 @@ export default function page() {
     const y = (-projected.y * 0.5 + 0.5) * window.innerHeight;
     return { x, y };
   }
+  
 
   // Update dimension popup container to follow the model.
   useEffect(() => {
@@ -423,7 +456,17 @@ export default function page() {
       setModelSrc(savedModelSrc);
     }
   }, []);
-
+  const furnitureMenu = (
+    <FurnitureMenu
+      items={data}
+      onAddItem={handleAddItem}
+      onUploadClick={handleFurnitureButtonClick}
+      furnitureFileInputRef={furnitureFileInputRef}
+      handleFurnitureUpload={handleFurnitureUpload}
+      mutate={mutate}
+      setSelectedItem={setSelectedItem}
+    />
+  );
   // Ensure that the model is positioned above the ground.
   const enforceAboveGround = (modelEl) => {
     if (!modelEl) return;
@@ -459,10 +502,8 @@ export default function page() {
     });
   }, [models]);
 return (
-  <div className="flex flex-col md:flex-row h-screen w-screen overflow-hidden">
-
-    {/* Sidebar: Furniture Menu */}
-    <div className="w-full md:w-1/3 lg:w-1/4 bg-white p-2 shadow-md overflow-y-hidden h-1/2 md:h-auto">
+  <ResponsiveARView
+    furnitureMenu={
       <FurnitureMenu
         items={data}
         onAddItem={handleAddItem}
@@ -472,193 +513,129 @@ return (
         mutate={mutate}
         setSelectedItem={setSelectedItem}
       />
-    </div>
-
-    {/* Main 3D Scene Area */}
-    <div className="flex-grow relative bg-gray-100">
-      {modelSrc ? (
-        <a-scene embedded physics className="w-full h-full rounded-lg shadow-lg">
-          {/* الكيانات والمجسمات */}
-          <a-entity gltf-model={modelSrc} position="0 0 0" scale="1 1 1" static-body></a-entity>
-          <a-plane
-            id="floor"
-            position="0 0 0"
-            rotation="-90 0 0"
-            width="10"
-            height="10"
-            opacity="0"
-            material="transparent: true"
-            className="clickable-floor"
-          ></a-plane>
-          {models.map((model) => (
-            <a-entity
-              drag-drop
-              key={model.id}
-              gltf-model={model.src}
-              position={model.position}
-              rotation={model.rotation}
-              scale={model.scale}
-              id={model.id}
-              className="clickable-item"
-              onClick={(evt) => handleModelClick(evt, model)}
+    }
+    controlMenu={
+      showMenu && selectedModelId && menuPosition && (
+        <>
+          {/* Desktop menu */}
+          <div className="hidden md:block absolute top-4 right-4 z-10">
+            <ControlMenu
+              dimensionsText={dimensionsText}
+              dimContainerPos={dimContainerPos}
+              showDimensionPopup={showDimensionPopup}
+              position={menuPosition}
+              onRotate={(dir) => handleRotateItem(selectedModelId, dir)}
+              onScale={(dir) => handleScaleItem(selectedModelId, dir)}
+              onDuplicate={handleDuplicateItem}
+              onDelete={() => handleRemoveItem(selectedModelId)}
+              handleShowDimensions={() => handleShowDimensions(selectedModelId)}
+              selectedModelId={selectedModelId}
+              selectedItem={selectedItem}
+              items={data}
+              mutate={mutate}
+              setMenuPosition={setMenuPosition}
+              setQrCodeData={setQrCodeData}
+              setShowQRPopup={setShowQRPopup}
+              setShowMenu={setShowMenu}
             />
-          ))}
-          <a-camera position="0 1.6 4">
-            <a-cursor
-              raycaster="objects: .clickable-item, .clickable-floor; showLine: true"
-              material="opacity: 0.5"
-              scale="2.5 2.5 2.5"
-            ></a-cursor>
-          </a-camera>
-        </a-scene>
-      ) : (
-        <img
-          src="/main2Home.jpg"
-          alt="Main Furniture"
-          className="w-full h-full object-cover"
-        />
-      )}
+          </div>
 
-      
-      <div className="absolute top-4 left-4 z-20">
-        <button
-          onClick={() => setShowMeasurementTool(!showMeasurementTool)}
-          className={`w-44 p-2 rounded-xl border text-sm font-medium shadow transition-all duration-300 ${
-            showMeasurementTool
-              ? 'bg-mainbackground text-white border-mainbackground'
-              : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-100'
-          }`}
-        >
-          📏 Measurement Tool
-        </button>
-      </div>
+          {/* Mobile menu */}
+          <div className="block md:hidden">
+            <MobileResponsiveControlMenu
+              dimensionsText={dimensionsText}
+              dimContainerPos={dimContainerPos}
+              showDimensionPopup={showDimensionPopup}
+              position={menuPosition}
+              onRotate={(dir) => handleRotateItem(selectedModelId, dir)}
+              onScale={(dir) => handleScaleItem(selectedModelId, dir)}
+              onDuplicate={handleDuplicateItem}
+              onDelete={() => handleRemoveItem(selectedModelId)}
+              handleShowDimensions={() => handleShowDimensions(selectedModelId)}
+              selectedModelId={selectedModelId}
+              selectedItem={selectedItem}
+              items={data}
+              mutate={mutate}
+              setMenuPosition={setMenuPosition}
+              setQrCodeData={setQrCodeData}
+              setShowQRPopup={setShowQRPopup}
+              setShowMenu={setShowMenu}
+            />
+          </div>
+        </>
+      )
+    }
+    measurementButton={
+      <button
+        onClick={() => setShowMeasurementTool(!showMeasurementTool)}
+        className={`w-44 p-2 rounded-xl border text-sm font-medium shadow transition-all duration-300 ${
+          showMeasurementTool
+            ? 'bg-mainbackground text-white border-mainbackground'
+            : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-100'
+        }`}
+      >
+        📏 Measurement Tool
+      </button>
+    }
+  >
+    {/* 🟡 دا المشهد الرئيسي جوا ResponsiveARView */}
+    {modelSrc ? (
+      <a-scene embedded physics className="w-full h-full rounded-lg shadow-lg">
+        {/* المشهد والموديلات */}
+        <a-entity gltf-model={modelSrc} position="0 0 0" scale="1 1 1" static-body />
+        <a-plane
+  id="floor"
+  position="0 0 0"
+  rotation="-90 0 0"
+  width="10"
+  height="10"
+  opacity="0"
+  material="transparent: true"
+  className="clickable-floor"
+/>
 
-      <MeasurementTool isVisible={showMeasurementTool}  setShowMeasurementTool={setShowMeasurementTool} />
-
-      {/* ✅ Floating Control Menu - يظهر فقط عندما showMenu = true */}
-      {showMenu && menuPosition && selectedModelId && (
-        <div className="absolute top-4 right-4 z-10">
-          <ControlMenu
-            dimensionsText={dimensionsText}
-            dimContainerPos={dimContainerPos}
-            showDimensionPopup={showDimensionPopup}
-            position={menuPosition}
-            onRotate={(dir) => handleRotateItem(selectedModelId, dir)}
-            onScale={(dir) => handleScaleItem(selectedModelId, dir)}
-            onDuplicate={handleDuplicateItem}
-            onDelete={() => handleRemoveItem(selectedModelId)}
-            handleShowDimensions={() => handleShowDimensions(selectedModelId)}
-            selectedModelId={selectedModelId}
-            selectedItem={selectedItem}
-            items={data}
-            mutate={mutate}
-            setMenuPosition={setMenuPosition}
-            setQrCodeData={setQrCodeData}
-            setShowQRPopup={setShowQRPopup}
-            setShowMenu={setShowMenu}
+        {models.map((model) => (
+          <a-entity
+            drag-drop
+            key={model.id}
+            gltf-model={model.src}
+            position={model.position}
+            rotation={model.rotation}
+            scale={model.scale}
+            id={model.id}
+            className="clickable-item"
+            onClick={(evt) => handleModelClick(evt, model)}
+            onTouchStart={handleTouchStart}
+    onTouchMove={handleTouchMove}
+    onTouchEnd={handleTouchEnd}
           />
-        </div>
-      )}
-    </div>
-  </div>
+        ))}
+  <a-camera 
+  position="0 1.6 4" 
+  scale="2.5 2.5 2.5"
+  look-controls="pointerLockEnabled: false; touchEnabled: true; mouseEnabled: true; reverseTouchDrag: false; enabled: true"
+  wasd-controls="acceleration: 50"
+>
+  <a-cursor
+    raycaster="objects: .clickable-item, .clickable-floor; showLine: true"
+    // position={`${cursorPosition.x} ${cursorPosition.y} ${cursorPosition.z}`}
+  />
+</a-camera>
+
+
+
+      </a-scene>
+    ) : (
+      <img src="/main2Home.jpg" alt="Main Furniture" className="w-full h-full object-cover" />
+    )}
+
+    {/* ✅ أداة القياس نفسها */}
+    <MeasurementTool
+      isVisible={showMeasurementTool}
+      setShowMeasurementTool={setShowMeasurementTool}
+    />
+  </ResponsiveARView>
 );
 
 }
-
- // <div className="flex flex-col md:flex-row h-screen w-screen overflow-hidden">
-
-    //   {/* Sidebar: Furniture Menu */}
-    //   <div className="w-full md:w-1/3 lg:w-1/4 bg-white p-2 shadow-md overflow-y-auto h-1/2 md:h-auto">
-
-    //     <FurnitureMenu
-    //       items={data}
-    //       onAddItem={handleAddItem}
-    //       onUploadClick={handleFurnitureButtonClick}
-    //       furnitureFileInputRef={furnitureFileInputRef}
-    //       handleFurnitureUpload={handleFurnitureUpload}
-    //       mutate={mutate}
-    //       setSelectedItem={setSelectedItem}
-    //     />
-    //   </div>
-
-    //   <div className="mt-2 p-1 border-t">
-    //     <button
-    //       onClick={() => setShowMeasurementTool(!showMeasurementTool)}
-    //       className={`w-full p-2 rounded-lg border-1 transition-all ${showMeasurementTool
-    //           ? 'bg-blue-100 border-blue-500 text-blue-700'
-    //           : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
-    //         }`}
-    //     >
-    //       📏MeasurementTool
-    //     </button>
-    //   </div>
-    //   {/* Main 3D Scene Area */}
-    //   <div className="flex-grow relative bg-gray-100">
-    //     {modelSrc ? (
-    //       <a-scene embedded physics className="w-full h-full rounded-lg shadow-lg">
-    //         <a-entity gltf-model={modelSrc} position="0 0 0" scale="1 1 1" static-body></a-entity>
-    //         <a-plane
-    //           id="floor"
-    //           position="0 0 0"
-    //           rotation="-90 0 0"
-    //           width="10"
-    //           height="10"
-    //           opacity="0"
-    //           material="transparent: true"
-    //           className="clickable-floor"
-    //         ></a-plane>
-    //         {models.map((model) => (
-    //           <a-entity
-    //             drag-drop
-    //             key={model.id}
-    //             gltf-model={model.src}
-    //             position={model.position}
-    //             rotation={model.rotation}
-    //             scale={model.scale}
-    //             id={model.id}
-    //             className="clickable-item"
-    //             onClick={(evt) => handleModelClick(evt, model)}
-    //           />
-    //         ))}
-    //         <a-camera position="0 1.6 4">
-    //           <a-cursor
-    //             raycaster="objects: .clickable-item, .clickable-floor; showLine: true"
-    //             material="opacity: 0.5"
-    //             scale="2.5 2.5 2.5"
-    //           ></a-cursor>
-    //         </a-camera>
-    //       </a-scene>
-    //     ) : (
-    //       <img
-    //         src="/main2Home.jpg"
-    //         alt="Main Furniture"
-    //         className="w-full h-full object-cover"
-    //       />
-    //     )}
-    //     <MeasurementTool isVisible={showMeasurementTool} />
-    //     {/* ✅ Floating Control Menu - يظهر فقط عندما showMenu = true */}
-    //     {showMenu && menuPosition && selectedModelId && (
-    //       <div className="absolute top-4 right-4 z-10">
-    //         <ControlMenu
-    //           dimensionsText={dimensionsText}
-    //           dimContainerPos={dimContainerPos}
-    //           showDimensionPopup={showDimensionPopup}
-    //           position={menuPosition}
-    //           onRotate={(dir) => handleRotateItem(selectedModelId, dir)}
-    //           onScale={(dir) => handleScaleItem(selectedModelId, dir)}
-    //           onDuplicate={handleDuplicateItem}
-    //           onDelete={() => handleRemoveItem(selectedModelId)}
-    //           handleShowDimensions={() => handleShowDimensions(selectedModelId)}
-    //           selectedModelId={selectedModelId}
-    //           selectedItem={selectedItem}
-    //           items={data}
-    //           mutate={mutate}
-    //           setMenuPosition={setMenuPosition}
-    //           setQrCodeData={setQrCodeData}
-    //           setShowQRPopup={setShowQRPopup}
-    //           setShowMenu={setShowMenu} // ✅ تمرير الدالة هنا
-    //         />
-    //       </div>
-    //     )}
-    //   </div>
-    // </div>
+ 
