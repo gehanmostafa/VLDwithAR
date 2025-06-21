@@ -1,7 +1,7 @@
 // components/common/ResponsiveARView
 import React, { useState, useEffect } from 'react';
 import { X, Plus, Menu } from 'lucide-react';
-import Footer from '@/components/common/Footer';
+import { useFooter } from "@/components/providers/FooterContext";
 
 const ResponsiveARView = ({ 
   children, 
@@ -11,7 +11,15 @@ const ResponsiveARView = ({
 }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [showMobileFurnitureMenu, setShowMobileFurnitureMenu] = useState(false);
+  const { setShowFooter } = useFooter();
 
+  useEffect(() => {
+    setShowFooter(false); // اخفي الفوتر لما الكمبوننت يظهر
+
+    return () => {
+      setShowFooter(true); // رجع الفوتر لما تخرج من الكمبوننت
+    };
+  }, [setShowFooter]);
   // Check if device is mobile
   useEffect(() => {
     const checkIsMobile = () => {
@@ -59,9 +67,6 @@ const ResponsiveARView = ({
           {/* Control Menu */}
           {controlMenu}
         </div>
-        
-        {/* Footer - show on desktop only */}
-        <Footer hideOnMobile={true} />
       </div>
     );
   }
@@ -69,7 +74,6 @@ const ResponsiveARView = ({
   // Mobile layout
   return (
     <div className="h-screen w-screen overflow-hidden relative">
-
       {/* Full screen 3D Scene */}
       <div className="w-full h-full relative bg-gray-100">
         {children}

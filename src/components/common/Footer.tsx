@@ -1,34 +1,14 @@
 "use client";
-import { FaArrowRight } from "react-icons/fa";
+import {  FaArrowRight } from "react-icons/fa";
 import { Input } from "../ui/input";
-import { useState, useEffect } from "react";
 
-export default function Footer({ hideOnMobile = false }) {
-  const [isMobile, setIsMobile] = useState(false);
-
-  // Check if device is mobile
-  useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    checkIsMobile();
-    window.addEventListener('resize', checkIsMobile);
-    
-    return () => window.removeEventListener('resize', checkIsMobile);
-  }, []);
-
-  // Hide footer on mobile if hideOnMobile prop is true
-  if (hideOnMobile && isMobile) {
-    return null;
-  }
-
+export default function Footer() {
   return (
-    <footer className="bg-white py-6 px-7 rounded-t-[40px] border-2">
-      <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer className="bg-white py-6   px-7   rounded-t-[40px]  border-2">
+      <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 " >
         
         <div className="w-full">
-          <h3 className="font-bold text-lg text-black mb-2">Wardiere Inc.</h3>
+          <h3 className="font-bold text-lg text-black mb-2">DesignAR</h3>
           <p className="text-sm text-gray-600">
             Stay in the loop and sign up for the Wardiere newsletter:
           </p>
@@ -46,7 +26,8 @@ export default function Footer({ hideOnMobile = false }) {
           </div>
         </div>
 
-        <div className="w-full">
+    
+        <div className="w-full ">
           <h4 className="font-bold text-lg text-black mb-3">Company</h4>
           <ul className="text-sm text-gray-600 space-y-2">
             <li className="hover:text-mainbackground cursor-pointer">Home</li>
@@ -55,9 +36,14 @@ export default function Footer({ hideOnMobile = false }) {
             <li className="hover:text-mainbackground cursor-pointer">Pricing</li>
             <li className="hover:text-mainbackground cursor-pointer">Team</li>
             <li className="hover:text-mainbackground cursor-pointer">Career</li>
+
+
+    
+
           </ul>
         </div>
 
+ 
         <div className="w-full">
           <h4 className="font-bold text-lg text-black mb-3">Documentation</h4>
           <ul className="text-sm text-gray-600 space-y-2">
@@ -67,6 +53,8 @@ export default function Footer({ hideOnMobile = false }) {
             <li className="hover:text-mainbackground cursor-pointer">Support</li>
           </ul>
         </div>
+
+    
 
         <div className="w-full">
           <h4 className="font-bold text-lg text-black mb-3">Social</h4>
@@ -80,8 +68,9 @@ export default function Footer({ hideOnMobile = false }) {
       </div>
 
       <div className="text-center text-sm text-gray-500 mt-6">
-        © Wardiere Inc. All Rights Reserved 2023 | Terms & Conditions
+        © Wardiere Inc. All Rights Reserved 2025 | Terms & Conditions
       </div>
     </footer>
   );
 }
+
