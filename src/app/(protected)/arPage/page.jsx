@@ -5,9 +5,9 @@ import useRoomBound from "@/hooks/useRoomBounds";
 import FurnitureMenu from "@/components/common/FurnitureMenu"
 import ControlMenu from "@/components/common/ControlMenu";
 import MeasurementTool from "@/components/common/MeasurementTool";
-import MobileResponsiveControlMenu from '@/components/common/MobileResponsiveControlMenu';
+import usePostSaveProjects from "@/hooks/usePostSaveProjects";
 import ResponsiveARView from '@/components/common/ResponsiveARView';
-import  { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function page() {
   useRoomBound();
@@ -501,6 +501,44 @@ const handleTouchEnd = () => {
       }
     });
   }, [models]);
+      const { mutate: SaveProjects } = usePostSaveProjects();
+
+const handleSaveScene = () => {
+  const sceneEl = document.querySelector("a-scene") ;
+  const canvas = sceneEl?.renderer?.domElement;
+
+  if (!sceneEl || !sceneEl.renderer || !sceneEl.camera || !canvas) {
+    console.error("❌ Scene or renderer not ready.");
+    return;
+  }
+
+  sceneEl.renderer.render(sceneEl.object3D, sceneEl.camera);
+  const base64Image = canvas.toDataURL("image/png");
+
+  // ✅ Debug: طباعة أول جزء من الصورة
+  console.log("🖼️ base64Image preview:", base64Image.slice(0, 100));
+
+  if (!base64Image?.startsWith("data:image")) {
+    console.error("❌ Invalid image");
+    return;
+  }
+
+  SaveProjects(
+    {
+      image: base64Image,
+      userEmail: "gehanRashed@gmail.com", // ممكن تيجي من auth
+    },
+    {
+      onSuccess: () => {
+        console.log("✅ Uploaded successfully");
+        // window.location.href = "/projects";
+      },
+      onError: (err) => {
+        console.error("❌ Upload error:", err);
+      },
+    }
+  );
+};
 return (
   <ResponsiveARView
     furnitureMenu={
@@ -578,22 +616,180 @@ return (
       </button>
     }
   >
-    {/* 🟡 دا المشهد الرئيسي جوا ResponsiveARView */}
+  
+   {modelSrc ? (
+          <a-scene embedded physics className="w-full h-full rounded-lg shadow-lg">
+                        {/* اضاءه  */}
+            <a-entity light="type: ambient; color: #fff; intensity: 1"></a-entity>
+            <a-entity light="type: directional; color: #fff; intensity: 0.8" position="1 3 1"></a-entity>
+            {/* الكيانات والمجسمات */}
+            <a-entity gltf-model={modelSrc} position="0 0 0" scale="1 1 1" static-body></a-entity>
+            <a-plane
+              id="floor"
+              position="0 0 0"
+              rotation="-90 0 0"
+              width="10"
+              height="10"
+              opacity="0"
+              material="transparent: true"
+              className="clickable-floor"
+            ></a-plane>
+            {models.map((model) => (
+              <a-entity
+                drag-drop
+                key={model.id}
+                gltf-model={model.src}
+                position={model.position}
+                rotation={model.rotation}
+                scale={model.scale}
+                id={model.id}
+                className="clickable-item"
+                onClick={(evt) => handleModelClick(evt, model)}
+              />
+            ))}
+            <a-camera position="0 1.6 4">
+              <a-cursor
+                raycaster="objects: .clickable-item, .clickable-floor; showLine: true"
+                material="opacity: 0.5"
+                scale="2.5 2.5 2.5"
+              ></a-cursor>
+            </a-camera>
+          </a-scene>
+        ) : (
+          <img
+            src="/main2Home.jpg"
+            alt="Main Furniture"
+            className="w-full h-full object-cover"
+          />
+        )}
+
+    {/* ✅ أداة القياس نفسها */}
+    <MeasurementTool
+      isVisible={showMeasurementTool}
+      setShowMeasurementTool={setShowMeasurementTool}
+    />
+  </ResponsiveARView>
+);
+
+}
+ 
+ 
+
+
+
+
+
+
+
+
+
+return (
+  <ResponsiveARView
+    furnitureMenu={
+      <FurnitureMenu
+        items={data}
+        onAddItem={handleAddItem}
+        onUploadClick={handleFurnitureButtonClick}
+        furnitureFileInputRef={furnitureFileInputRef}
+        handleFurnitureUpload={handleFurnitureUpload}
+        mutate={mutate}
+        setSelectedItem={setSelectedItem}
+      />
+    }
+    controlMenu={
+      showMenu && selectedModelId && menuPosition && (
+        <>
+          {/* Desktop Menu */}
+          <div className="hidden md:block absolute top-4 right-4 z-10">
+            <ControlMenu
+              dimensionsText={dimensionsText}
+              dimContainerPos={dimContainerPos}
+              showDimensionPopup={showDimensionPopup}
+              position={menuPosition}
+              onRotate={(dir) => handleRotateItem(selectedModelId, dir)}
+              onScale={(dir) => handleScaleItem(selectedModelId, dir)}
+              onDuplicate={handleDuplicateItem}
+              onDelete={() => handleRemoveItem(selectedModelId)}
+              handleShowDimensions={() => handleShowDimensions(selectedModelId)}
+              selectedModelId={selectedModelId}
+              selectedItem={selectedItem}
+              items={data}
+              mutate={mutate}
+              setMenuPosition={setMenuPosition}
+              setQrCodeData={setQrCodeData}
+              setShowQRPopup={setShowQRPopup}
+              setShowMenu={setShowMenu}
+            />
+          </div>
+
+          {/* Mobile Menu */}
+          <div className="block md:hidden absolute top-4 right-4 z-10">
+            <MobileResponsiveControlMenu
+              dimensionsText={dimensionsText}
+              dimContainerPos={dimContainerPos}
+              showDimensionPopup={showDimensionPopup}
+              position={menuPosition}
+              onRotate={(dir) => handleRotateItem(selectedModelId, dir)}
+              onScale={(dir) => handleScaleItem(selectedModelId, dir)}
+              onDuplicate={handleDuplicateItem}
+              onDelete={() => handleRemoveItem(selectedModelId)}
+              handleShowDimensions={() => handleShowDimensions(selectedModelId)}
+              selectedModelId={selectedModelId}
+              selectedItem={selectedItem}
+              items={data}
+              mutate={mutate}
+              setMenuPosition={setMenuPosition}
+              setQrCodeData={setQrCodeData}
+              setShowQRPopup={setShowQRPopup}
+              setShowMenu={setShowMenu}
+            />
+          </div>
+        </>
+      )
+    }
+    measurementButton={
+      <div className="flex flex-col gap-2">
+        <button
+          onClick={() => setShowMeasurementTool(!showMeasurementTool)}
+          className={`w-44 p-2 rounded-xl border text-sm font-medium shadow transition-all duration-300 ${
+            showMeasurementTool
+              ? 'bg-mainbackground text-white border-mainbackground'
+              : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-100'
+          }`}
+        >
+          📏 Measurement Tool
+        </button>
+
+        <button
+          onClick={handleSaveScene}
+          className="w-44 p-2 rounded-xl border bg-white text-gray-800 border-gray-300 hover:bg-gray-100 text-sm font-medium shadow"
+        >
+          💾 Save Scene
+        </button>
+      </div>
+    }
+  >
+    {/* المشهد الرئيسي */}
     {modelSrc ? (
       <a-scene embedded physics className="w-full h-full rounded-lg shadow-lg">
-        {/* المشهد والموديلات */}
+        {/* إضاءة */}
+        <a-entity light="type: ambient; color: #fff; intensity: 1" />
+        <a-entity light="type: directional; color: #fff; intensity: 0.8" position="1 3 1" />
+
+        {/* الأرضية والموديل الأساسي */}
         <a-entity gltf-model={modelSrc} position="0 0 0" scale="1 1 1" static-body />
         <a-plane
-  id="floor"
-  position="0 0 0"
-  rotation="-90 0 0"
-  width="10"
-  height="10"
-  opacity="0"
-  material="transparent: true"
-  className="clickable-floor"
-/>
+          id="floor"
+          position="0 0 0"
+          rotation="-90 0 0"
+          width="10"
+          height="10"
+          opacity="0"
+          material="transparent: true"
+          className="clickable-floor"
+        />
 
+        {/* المجسمات التانية */}
         {models.map((model) => (
           <a-entity
             drag-drop
@@ -606,36 +802,32 @@ return (
             className="clickable-item"
             onClick={(evt) => handleModelClick(evt, model)}
             onTouchStart={handleTouchStart}
-    onTouchMove={handleTouchMove}
-    onTouchEnd={handleTouchEnd}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
           />
         ))}
-  <a-camera 
-  position="0 1.6 4" 
-  scale="2.5 2.5 2.5"
-  look-controls="pointerLockEnabled: false; touchEnabled: true; mouseEnabled: true; reverseTouchDrag: false; enabled: true"
-  wasd-controls="acceleration: 50"
->
-  <a-cursor
-    raycaster="objects: .clickable-item, .clickable-floor; showLine: true"
-    // position={`${cursorPosition.x} ${cursorPosition.y} ${cursorPosition.z}`}
-  />
-</a-camera>
 
-
-
+        {/* الكاميرا */}
+        <a-camera
+          position="0 1.6 4"
+          scale="2.5 2.5 2.5"
+          look-controls="pointerLockEnabled: false; touchEnabled: true; mouseEnabled: true; reverseTouchDrag: false; enabled: true"
+          wasd-controls="acceleration: 50"
+        >
+          <a-cursor
+            raycaster="objects: .clickable-item, .clickable-floor; showLine: true"
+            material="opacity: 0.5"
+          />
+        </a-camera>
       </a-scene>
     ) : (
       <img src="/main2Home.jpg" alt="Main Furniture" className="w-full h-full object-cover" />
     )}
 
-    {/* ✅ أداة القياس نفسها */}
+    {/* أداة القياس */}
     <MeasurementTool
       isVisible={showMeasurementTool}
       setShowMeasurementTool={setShowMeasurementTool}
     />
   </ResponsiveARView>
 );
-
-}
- 
