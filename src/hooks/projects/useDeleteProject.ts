@@ -20,7 +20,7 @@ const useDeleteProject = () => {
       toast.success(" Project deleted successfully");
       queryClient.invalidateQueries({ queryKey: ['projects'] });
     },
-    onError: (error: any) => {
+    onError: (error) => {
       toast.error(" Failed to delete project");
       console.error(error);
     }

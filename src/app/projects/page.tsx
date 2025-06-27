@@ -141,7 +141,9 @@ export default function Projects() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
             >
+              {/* eslint-disable react/no-unescaped-entities */}
               It looks like you haven't uploaded any designs. Let's start by uploading your first masterpiece!
+              {/* eslint-disable react/no-unescaped-entities */}
             </motion.p>
             <motion.button
               onClick={() => router.push("/uploadIMG")}
