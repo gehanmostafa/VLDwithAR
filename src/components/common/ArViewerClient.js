@@ -124,10 +124,6 @@ export default function ArViewerClient() {
     ar
     ar-modes="webxr scene-viewer quick-look"
     ar-placement="floor"
-<<<<<<< HEAD
-=======
-    ar-scale="fixed"
->>>>>>> origin/new-feature
     camera-controls
     touch-action="pan-y"
     environment-image="neutral"
