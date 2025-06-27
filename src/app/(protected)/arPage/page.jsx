@@ -14,6 +14,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { useState, useEffect, useRef } from "react";
 import usePostSaveProjects from "@/hooks/projects/usePostSaveProject";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 
 export default function Page() {
@@ -759,8 +760,10 @@ export default function Page() {
       },
       {
         onSuccess: () => {
-          console.log("Uploaded successfully");
 
+          toast.success("Uploaded successfully", {
+            autoClose: 5000, 
+          });
           router.push("/projects");
 
         },
