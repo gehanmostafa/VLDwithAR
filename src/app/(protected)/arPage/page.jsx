@@ -734,45 +734,55 @@ export default function Page() {
   }, [models]);
 
 
-  const handleSaveScreenshot = () => {
-    const sceneEl = document.querySelector("a-scene");
-    const canvas = sceneEl?.renderer?.domElement;
+const handleSaveScreenshot = async () => {
+  const sceneEl = document.querySelector("a-scene");
 
-    if (!sceneEl || !sceneEl.renderer || !sceneEl.camera || !canvas) {
-      console.error("❌ Scene or renderer not ready.");
-      return;
-    }
+  if (!sceneEl) {
+    console.error("❌ No scene found.");
+    return;
+  }
 
-    sceneEl.renderer.render(sceneEl.object3D, sceneEl.camera);
-    const base64Image = canvas.toDataURL("image/png");
+  let retries = 0;
+  while ((!sceneEl.renderer || !sceneEl.renderer.domElement) && retries < 10) {
+    await new Promise((res) => setTimeout(res, 300));
+    retries++;
+  }
+
+  const canvas = sceneEl.renderer?.domElement;
+
+  if (!sceneEl.renderer || !sceneEl.camera || !canvas || typeof canvas.toDataURL !== "function") {
+    console.error("❌ Renderer, camera, or canvas not ready.");
+    return;
+  }
 
 
+  sceneEl.renderer.render(sceneEl.object3D, sceneEl.camera);
+  const base64Image = canvas.toDataURL("image/png");
 
-    if (!base64Image?.startsWith("data:image")) {
-      console.error("Invalid image");
-      return;
-    }
+  if (!base64Image?.startsWith("data:image")) {
+    console.error("Invalid image");
+    return;
+  }
 
-    SaveProjects(
-      {
-        image: base64Image,
-        userEmail: "gehanRashed@gmail.com",
+  SaveProjects(
+    {
+      image: base64Image,
+      userEmail: "gehanRashed@gmail.com",
+    },
+    {
+      onSuccess: () => {
+        toast.success("Uploaded successfully", {
+          autoClose: 5000,
+        });
+        router.push("/projects");
       },
-      {
-        onSuccess: () => {
+      onError: (err) => {
+        console.error(" Upload error:", err);
+      },
+    }
+  );
+};
 
-          toast.success("Uploaded successfully", {
-            autoClose: 5000, 
-          });
-          router.push("/projects");
-
-        },
-        onError: (err) => {
-          console.error(" Upload error:", err);
-        },
-      }
-    );
-  };
   return (
     <ResponsiveARView
       furnitureMenu={
