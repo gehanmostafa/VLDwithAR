@@ -742,25 +742,25 @@ const handleSaveScreenshot = async () => {
     return;
   }
 
+  // ننتظر canvas يجهز
   let retries = 0;
-  while ((!sceneEl.renderer || !sceneEl.renderer.domElement) && retries < 10) {
+  while ((!sceneEl.canvas || typeof sceneEl.canvas.toDataURL !== "function") && retries < 10) {
     await new Promise((res) => setTimeout(res, 300));
     retries++;
   }
 
-  const canvas = sceneEl.renderer?.domElement;
+  const canvas = sceneEl.canvas;
 
-  if (!sceneEl.renderer || !sceneEl.camera || !canvas || typeof canvas.toDataURL !== "function") {
-    console.error("❌ Renderer, camera, or canvas not ready.");
+  if (!canvas || typeof canvas.toDataURL !== "function") {
+    console.error("❌ Canvas not ready or unsupported on this device.");
+    toast.error("تعذر التقاط صورة للمشهد.");
     return;
   }
 
-
-  sceneEl.renderer.render(sceneEl.object3D, sceneEl.camera);
   const base64Image = canvas.toDataURL("image/png");
 
   if (!base64Image?.startsWith("data:image")) {
-    console.error("Invalid image");
+    console.error("❌ Invalid image data.");
     return;
   }
 
@@ -778,6 +778,7 @@ const handleSaveScreenshot = async () => {
       },
       onError: (err) => {
         console.error(" Upload error:", err);
+        toast.error("فشل في رفع الصورة.");
       },
     }
   );
