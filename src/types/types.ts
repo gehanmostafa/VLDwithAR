@@ -14,3 +14,8 @@ export interface IProduct {
 export interface IArFile {
     "arFileUrl": string
 }
+export interface IProjectImage {
+  id?: string;
+  image: string; 
+  createdAt?: string;
+}
