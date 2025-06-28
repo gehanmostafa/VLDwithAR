@@ -14,6 +14,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { useState, useEffect, useRef } from "react";
 import usePostSaveProjects from "@/hooks/projects/usePostSaveProject";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 
 export default function Page() {
@@ -733,43 +734,56 @@ export default function Page() {
   }, [models]);
 
 
-  const handleSaveScreenshot = () => {
-    const sceneEl = document.querySelector("a-scene");
-    const canvas = sceneEl?.renderer?.domElement;
+const handleSaveScreenshot = async () => {
+  const sceneEl = document.querySelector("a-scene");
 
-    if (!sceneEl || !sceneEl.renderer || !sceneEl.camera || !canvas) {
-      console.error("❌ Scene or renderer not ready.");
-      return;
-    }
+  if (!sceneEl) {
+    console.error("❌ No scene found.");
+    return;
+  }
 
-    sceneEl.renderer.render(sceneEl.object3D, sceneEl.camera);
-    const base64Image = canvas.toDataURL("image/png");
+  // ننتظر canvas يجهز
+  let retries = 0;
+  while ((!sceneEl.canvas || typeof sceneEl.canvas.toDataURL !== "function") && retries < 10) {
+    await new Promise((res) => setTimeout(res, 300));
+    retries++;
+  }
 
+  const canvas = sceneEl.canvas;
 
+  if (!canvas || typeof canvas.toDataURL !== "function") {
+    console.error("❌ Canvas not ready or unsupported on this device.");
+    toast.error("تعذر التقاط صورة للمشهد.");
+    return;
+  }
 
-    if (!base64Image?.startsWith("data:image")) {
-      console.error("Invalid image");
-      return;
-    }
+  const base64Image = canvas.toDataURL("image/png");
 
-    SaveProjects(
-      {
-        image: base64Image,
-        userEmail: "gehanRashed@gmail.com",
+  if (!base64Image?.startsWith("data:image")) {
+    console.error("❌ Invalid image data.");
+    return;
+  }
+
+  SaveProjects(
+    {
+      image: base64Image,
+      userEmail: "gehanRashed@gmail.com",
+    },
+    {
+      onSuccess: () => {
+        toast.success("Uploaded successfully", {
+          autoClose: 5000,
+        });
+        router.push("/projects");
       },
-      {
-        onSuccess: () => {
-          console.log("Uploaded successfully");
+      onError: (err) => {
+        console.error(" Upload error:", err);
+        toast.error("فشل في رفع الصورة.");
+      },
+    }
+  );
+};
 
-          router.push("/projects");
-
-        },
-        onError: (err) => {
-          console.error(" Upload error:", err);
-        },
-      }
-    );
-  };
   return (
     <ResponsiveARView
       furnitureMenu={
