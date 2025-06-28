@@ -3433,6 +3433,186 @@
 //     </div>
 //   );
 // }
+// 'use client';
+
+// import Image from 'next/image';
+// import { useState, Suspense } from 'react';
+// import { useRouter } from 'next/navigation';
+// import { Canvas } from '@react-three/fiber';
+// import { OrbitControls, useGLTF } from '@react-three/drei';
+
+// interface User {
+//   Name?: string;
+//   Email?: string;
+// }
+
+// interface LoginResponse {
+//   token?: string;
+//   message?: string;
+//   user?: User;
+// }
+
+// // 3D Model Loader
+// function Model({ url }: { url: string }) {
+//   const { scene } = useGLTF(url);
+//   return <primitive object={scene} scale={1.5} />;
+// }
+
+// // ✅ Preload the model at the top level
+// useGLTF.preload('/room.glb');
+
+// export default function SignInPage() {
+//   const router = useRouter();
+//   const [form, setForm] = useState({ email: '', password: '' });
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState('');
+//   const [success, setSuccess] = useState('');
+
+//   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     setForm({ ...form, [e.target.id]: e.target.value });
+//   };
+
+//   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+//     e.preventDefault();
+//     setError('');
+//     setSuccess('');
+
+//     if (!form.email || !form.password) {
+//       setError('Email and password are required.');
+//       return;
+//     }
+
+//     setLoading(true);
+//     try {
+//       const res = await fetch('http://13.48.25.101:8000/api/auth/login', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({
+//           Email: form.email,
+//           Password: form.password,
+//         }),
+//       });
+
+//       const data: LoginResponse = await res.json();
+
+//       if (res.ok && data.token) {
+//         localStorage.setItem('token', data.token);
+//         localStorage.setItem('userName', data.user?.Name || 'User');
+//         setSuccess('Logged in successfully!');
+//         router.push('/');
+//       } else {
+//         setError(data.message || 'Login failed');
+//       }
+//     } catch (err) {
+//       const errorMessage =
+//         err instanceof Error ? err.message : 'Server unavailable, please try again shortly.';
+//       setError(errorMessage);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <div className="relative min-h-screen flex items-center justify-center px-4 py-8 overflow-hidden">
+//       {/* Background */}
+//       <Image
+//         src="/w1.svg"
+//         alt="Background"
+//         fill
+//         className="absolute inset-0 object-cover z-0"
+//         priority
+//       />
+
+//       {/* Card */}
+//       <div className="relative z-10 w-full max-w-5xl min-h-[500px] flex flex-col lg:flex-row rounded-[30px] bg-white/90 backdrop-blur-sm overflow-hidden shadow-2xl">
+//         {/* Form Side */}
+//         <div className="w-full lg:w-1/2 px-6 sm:px-10 py-8 sm:py-12 bg-[#eef4f3]/80 flex flex-col justify-center">
+//           <h2 className="text-2xl sm:text-3xl font-bold text-[#0d4c3e] mb-1">Login</h2>
+//           <p className="text-sm text-gray-600 mb-8">If you are already a member, easily log in</p>
+
+//           <form onSubmit={handleSubmit} className="space-y-5">
+//             <input
+//               id="email"
+//               type="email"
+//               placeholder="Email"
+//               value={form.email}
+//               onChange={handleChange}
+//               required
+//               className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e]"
+//             />
+//             <input
+//               id="password"
+//               type="password"
+//               placeholder="Password"
+//               value={form.password}
+//               onChange={handleChange}
+//               required
+//               className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e]"
+//             />
+
+//             {loading && <p className="text-sm text-gray-600">Connecting to server...</p>}
+//             {error && <p className="text-sm text-red-500">{error}</p>}
+//             {success && <p className="text-sm text-green-600">{success}</p>}
+
+//             <button
+//               type="submit"
+//               disabled={loading}
+//               className={`w-full text-white py-3 rounded-xl font-semibold transition-all duration-500
+//                 ${
+//                   loading
+//                     ? 'bg-gray-400 cursor-not-allowed'
+//                     : 'bg-[#0d4c3e] hover:bg-[#0b3d31] shadow-[0_0_15px_#0d4c3eaa] hover:shadow-[0_0_25px_#0d4c3eff]'
+//                 }`}
+//             >
+//               {loading ? 'Signing in...' : 'Login'}
+//             </button>
+
+//             <div className="relative flex items-center justify-center">
+//               <div className="absolute h-px bg-gray-300 w-full"></div>
+//               <span className="bg-[#eef4f3] px-3 text-sm text-gray-500">OR</span>
+//             </div>
+//           </form>
+
+//           <div className="text-sm text-gray-600 mt-4 flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-0">
+//             <span></span>
+//             <div>
+//               <span>Don&rsquo;t have an account?</span>
+//               <button
+//                 onClick={() => router.push('/signup')}
+//                 className="ml-1 font-semibold underline hover:text-[#0d4c3e]"
+//               >
+//                 Sign Up
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+
+//         {/* 3D Model Side */}
+//         <div className="hidden lg:block w-1/2 relative">
+//           <div className="absolute inset-0">
+//             <Canvas camera={{ position: [0, 0, 5], fov: 50 }} style={{ background: '#f9f9f9' }}>
+//               <ambientLight intensity={0.7} />
+//               <directionalLight position={[5, 5, 5]} intensity={1} />
+//               <Suspense fallback={null}>
+//                 <Model url="/room.glb" />
+//               </Suspense>
+//               <OrbitControls
+//                 autoRotate={false}
+//                 autoRotateSpeed={1.5}
+//                 enableZoom={false}
+//                 enablePan={false}
+//                 maxPolarAngle={Math.PI / 2}
+//                 minPolarAngle={Math.PI / 2.5}
+//                 maxAzimuthAngle={Math.PI / 2}
+//                 minAzimuthAngle={-Math.PI / 2}
+//               />
+//             </Canvas>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
 'use client';
 
 import Image from 'next/image';
@@ -3458,7 +3638,7 @@ function Model({ url }: { url: string }) {
   return <primitive object={scene} scale={1.5} />;
 }
 
-// ✅ Preload the model at the top level
+// ✅ Preload the model
 useGLTF.preload('/room.glb');
 
 export default function SignInPage() {
@@ -3498,8 +3678,12 @@ export default function SignInPage() {
       if (res.ok && data.token) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('userName', data.user?.Name || 'User');
-        setSuccess('Logged in successfully!');
+
+        // ✅ Notify navbar and redirect home
+        window.dispatchEvent(new Event('storage'));
         router.push('/');
+
+        setSuccess('Logged in successfully!');
       } else {
         setError(data.message || 'Login failed');
       }
