@@ -28,25 +28,6 @@ body::-webkit-scrollbar-thumb:hover {
   border: 2px solid #e0e0e0;
   cursor:pointer;
 }
-@keyframes bubble {
-  0% {
-    transform: translateY(0) scale(1);
-    opacity: 0.3;
-  }
-  50% {
-    opacity: 0.5;
-  }
-  100% {
-    transform: translateY(-100vh) scale(1.2);
-    opacity: 0;
-  }
-}
-
-.animate-bubble {
-  animation-name: bubble;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-}
 
 
 
@@ -223,4 +204,13 @@ overflow-x: hidden;
 }
 .animate-float-slow {
   animation: float 9s ease-in-out infinite;
+}
+@keyframes moveRight {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(5px); }
+  100% { transform: translateX(0); }
+}
+
+.animate-moveRight {
+  animation: moveRight 1s infinite;
 }

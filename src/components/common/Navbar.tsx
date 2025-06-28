@@ -1,19 +1,31 @@
 'use client';
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { FaArrowRight } from "react-icons/fa";
+import { motion } from "framer-motion";
 import Image from 'next/image';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     setHasMounted(true);
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
   }, []);
 
   const isActive = (path: string) => pathname === path;
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsLoggedIn(false);
+    router.push("/login");
+  };
 
   const navItems = [
     { href: "/", label: "Home" },
@@ -24,21 +36,23 @@ export default function Navbar() {
 
   return (
     <nav className="bg-[#0d4c3e] py-5 px-4 md:px-36 relative z-20 shadow-md">
-      <div className="container mx-auto flex justify-between items-center">
-        {/* Logo */}
-        <div className="text-white text-xl font-bold">
-          <Link href="/">
-            <div className="hover:cursor-pointer">
-              <Image 
-                src="/logo.jpg" 
-                alt="ARvana Logo" 
-                width={50} 
-                height={20} 
-                priority
-              />
-            </div>
-          </Link>
-        </div>
+<div className="container mx-auto flex justify-between items-center">
+  {/* Logo */}
+  <div className="text-white text-xl font-bold">
+    <Link href="/">
+      <div className="hover:cursor-pointer">
+        <Image 
+          src="/logo.jpg" 
+          alt="ARvana Logo" 
+          width={50} 
+          height={20} 
+          priority
+        />
+      </div>
+    </Link>
+  </div>
+
+
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-6">
@@ -55,6 +69,49 @@ export default function Navbar() {
               </span>
             </Link>
           ))}
+
+          {isLoggedIn ? (
+            <button
+              onClick={handleLogout}
+              className="bg-white text-[#0d4c3e] font-medium rounded-full px-4 py-1 hover:bg-gray-100 transition"
+            >
+              Logout
+            </button>
+          ) : (
+            <>
+              {/* Log in Button */}
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Link href="/login">
+                  <button className="bg-white text-[#0d4c3e] font-medium rounded-full px-4 py-1 flex items-center space-x-1 hover:pl-2 transition-all">
+                    <span className="uppercase">Log in</span>
+                    <motion.span
+                      className="ml-1"
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ repeat: Infinity, duration: 1.2 }}
+                    >
+                      <FaArrowRight size={12} />
+                    </motion.span>
+                  </button>
+                </Link>
+              </motion.div>
+
+              {/* Sign up Button */}
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Link href="/signup">
+                  <button className="bg-white text-[#0d4c3e] font-medium rounded-full px-4 py-1 flex items-center space-x-1 hover:pl-2 transition-all">
+                    <span className="uppercase">Sign up</span>
+                    <motion.span
+                      className="ml-1"
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ repeat: Infinity, duration: 1.2 }}
+                    >
+                      <FaArrowRight size={12} />
+                    </motion.span>
+                  </button>
+                </Link>
+              </motion.div>
+            </>
+          )}
         </div>
 
         {/* Hamburger Icon (Mobile) */}
@@ -98,8 +155,52 @@ export default function Navbar() {
               </span>
             </Link>
           ))}
+
+          {isLoggedIn ? (
+            <button
+              onClick={handleLogout}
+              className="w-full bg-white text-[#0d4c3e] font-medium rounded-full px-4 py-2 flex justify-center items-center space-x-1 hover:bg-gray-100 transition"
+            >
+              Logout
+            </button>
+          ) : (
+            <>
+              {/* Log in Mobile */}
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Link href="/login">
+                  <button className="w-full bg-white text-[#0d4c3e] font-medium rounded-full px-4 py-2 flex justify-center items-center space-x-1 hover:pl-2 transition-all">
+                    <span className="uppercase">Log in</span>
+                    <motion.span
+                      className="ml-1"
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ repeat: Infinity, duration: 1.2 }}
+                    >
+                      <FaArrowRight size={12} />
+                    </motion.span>
+                  </button>
+                </Link>
+              </motion.div>
+
+              {/* Sign up Mobile */}
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Link href="/signup">
+                  <button className="w-full bg-white text-[#0d4c3e] font-medium rounded-full px-4 py-2 flex justify-center items-center space-x-1 hover:pl-2 transition-all">
+                    <span className="uppercase">Sign up</span>
+                    <motion.span
+                      className="ml-1"
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ repeat: Infinity, duration: 1.2 }}
+                    >
+                      <FaArrowRight size={12} />
+                    </motion.span>
+                  </button>
+                </Link>
+              </motion.div>
+            </>
+          )}
         </div>
       )}
     </nav>
   );
 }
+
