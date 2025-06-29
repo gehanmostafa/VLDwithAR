@@ -15,6 +15,8 @@ const fetchProjects = async (): Promise<IProjects[]> => {
 };
 
 const useGetProjects = () => {
+
+
   const { data, isLoading, error } = useQuery({
     queryKey: ['projects'],
     queryFn: fetchProjects,

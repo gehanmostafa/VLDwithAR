@@ -1620,12 +1620,21 @@ const handleSaveScreenshot = async () => {
   }
 
   const canvas = sceneEl.canvas;
+  const renderer = sceneEl.renderer;
+  const camera = sceneEl.camera;
+  const scene = sceneEl.object3D;
 
-  if (!canvas || typeof canvas.toDataURL !== "function") {
-    console.error("❌ Canvas not ready or unsupported on this device.");
+  if (!canvas || !renderer || !camera || !scene || typeof canvas.toDataURL !== "function") {
+    console.error("❌ Renderer or camera not ready.");
     toast.error("تعذر التقاط صورة للمشهد.");
     return;
   }
+
+  // 💡 نعيد الرسم يدويًا قبل التصوير (مهم جدًا)
+  renderer.render(scene, camera);
+
+  // ⏳ ننتظر frame يتثبت عشان ميطلعش فاضي
+  await new Promise((res) => setTimeout(res, 100));
 
   const base64Image = canvas.toDataURL("image/png");
 
@@ -1653,6 +1662,7 @@ const handleSaveScreenshot = async () => {
     }
   );
 };
+
 
   return (
      

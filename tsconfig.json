@@ -35,7 +35,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "src/hooks/useGetProducts.ts"
-  ],
+, "src/components/common/ThreeDViewer.jsx"  ],
   "exclude": [
     "node_modules"
   ]
