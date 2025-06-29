@@ -120,7 +120,7 @@ export async function POST(req: Request) {
 
     console.log('[SIGNUP] Sending:', fullBody);
 
-    const response = await fetch('https://interior-desgin.onrender.com/api/v1/auth/register', {
+    const response = await fetch('https://api.virtualinteriordesign.click/api/api/v1/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(fullBody),
