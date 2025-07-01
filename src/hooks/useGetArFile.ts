@@ -9,7 +9,7 @@ interface ArFileResponse {
 // هنا بنعمل GET مع الاسم في الرابط بدل POST مع body
 const fetchArFile = async (modelName: string): Promise<ArFileResponse> => {
   const response = await axios.get(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/model-link/${modelName}`
+    `${process.env.NEXT_PUBLIC_BASE_URL}/model-link/${modelName}`
   );
   return response.data;
 };
