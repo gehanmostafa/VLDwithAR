@@ -6,12 +6,12 @@ const team = [
   {
     name: "Jehan Mostafa",
     role: "Frontend & AR Developer",
-    github: "https://github.com/jehan", // عدلي اللينك حسب حسابك
+    github: "https://github.com/gehanmostafa", // عدلي اللينك حسب حسابك
   },
   {
     name: "Aliaa Nasr Eldin",
     role: "Backend & AR Developer",
-    github: "https://github.com/aliaa",
+    github: "https://github.com/aliaa25 ",
   },
   {
     name: "Maryam Waleed",
@@ -23,6 +23,26 @@ const team = [
     role: "Frontend Developer",
     github: "https://github.com/yasmin",
   },
+  
+  {
+    name: "Shaimaa Rashidy",
+    role: "Web Developer",
+    github: "https://github.com/ShaimaaRashidy",
+  },
+  
+  {
+    name: "Khadiga Yahya",
+    role: " AI Engineer",
+    github: " https://github.com/Khadigayahya",
+  },
+  {
+    name: "Lamiaa Ali",
+    role: "AI Engineer",
+    github: " https://github.com/Lami9",
+  },
+  
+  
+  
   {
     name: "Dr. Maha Medhat",
     role: "Supervisor",
