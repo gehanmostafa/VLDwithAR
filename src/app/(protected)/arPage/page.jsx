@@ -14,6 +14,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { useState, useEffect, useRef } from "react";
 import usePostSaveProjects from "@/hooks/projects/usePostSaveProject";
 import { useRouter } from "next/navigation";
+
 import toast from "react-hot-toast";
 
 
@@ -51,6 +52,11 @@ export default function Page() {
       setIsMobile(/Mobi|Android/i.test(navigator.userAgent));
     }
   }, []);
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            import('aframe').catch(console.error);
+        }
+    }, []);
   useEffect(() => {
     if (typeof window !== 'undefined' && window.AFRAME &&
       !AFRAME.components['custom-touch-look-controls']) {
@@ -687,17 +693,7 @@ export default function Page() {
       setModelSrc(savedModelSrc);
     }
   }, []);
-  const furnitureMenu = (
-    <FurnitureMenu
-      items={data}
-      onAddItem={handleAddItem}
-      onUploadClick={handleFurnitureButtonClick}
-      furnitureFileInputRef={furnitureFileInputRef}
-      handleFurnitureUpload={handleFurnitureUpload}
-      mutate={mutate}
-      setSelectedItem={setSelectedItem}
-    />
-  );
+
   // Ensure that the model is positioned above the ground.
   const enforceAboveGround = (modelEl) => {
     if (!modelEl) return;
@@ -734,56 +730,84 @@ export default function Page() {
   }, [models]);
 
 
-const handleSaveScreenshot = async () => {
-  const sceneEl = document.querySelector("a-scene");
+  const handleSaveScreenshot = async () => {
+    const sceneEl = document.querySelector("a-scene");
 
-  if (!sceneEl) {
-    console.error("❌ No scene found.");
-    return;
-  }
-
-  // ننتظر canvas يجهز
-  let retries = 0;
-  while ((!sceneEl.canvas || typeof sceneEl.canvas.toDataURL !== "function") && retries < 10) {
-    await new Promise((res) => setTimeout(res, 300));
-    retries++;
-  }
-
-  const canvas = sceneEl.canvas;
-
-  if (!canvas || typeof canvas.toDataURL !== "function") {
-    console.error("❌ Canvas not ready or unsupported on this device.");
-    toast.error("تعذر التقاط صورة للمشهد.");
-    return;
-  }
-
-  const base64Image = canvas.toDataURL("image/png");
-
-  if (!base64Image?.startsWith("data:image")) {
-    console.error("❌ Invalid image data.");
-    return;
-  }
-
-  SaveProjects(
-    {
-      image: base64Image,
-      userEmail: "gehanRashed@gmail.com",
-    },
-    {
-      onSuccess: () => {
-        toast.success("Uploaded successfully", {
-          autoClose: 5000,
-        });
-        router.push("/projects");
-      },
-      onError: (err) => {
-        console.error(" Upload error:", err);
-        toast.error("فشل في رفع الصورة.");
-      },
+    if (!sceneEl) {
+      console.error("❌ No scene found.");
+      return;
     }
-  );
-};
 
+    // ننتظر canvas يجهز
+    let retries = 0;
+    while ((!sceneEl.canvas || typeof sceneEl.canvas.toDataURL !== "function") && retries < 10) {
+      await new Promise((res) => setTimeout(res, 300));
+      retries++;
+    }
+
+    const canvas = sceneEl.canvas;
+
+    if (!canvas || typeof canvas.toDataURL !== "function") {
+      console.error("❌ Canvas not ready or unsupported on this device.");
+      toast.error("تعذر التقاط صورة للمشهد.");
+      return;
+    }
+
+    const base64Image = canvas.toDataURL("image/png");
+
+    if (!base64Image?.startsWith("data:image")) {
+      console.error("❌ Invalid image data.");
+      return;
+    }
+
+    SaveProjects(
+      {
+        image: base64Image,
+        userEmail: "gehanRashed@gmail.com",
+      },
+      {
+        onSuccess: () => {
+          toast.success("Uploaded successfully", {
+            autoClose: 5000,
+          });
+          router.push("/projects");
+        },
+        onError: (err) => {
+          console.error(" Upload error:", err);
+          toast.error("فشل في رفع الصورة.");
+        },
+      }
+    );
+  };  
+   const modelRef = useRef(null);
+
+  useEffect(() => {
+   
+    const el = modelRef.current;
+    if (!el) return;
+
+    // لما الموديل يخلص تحميله
+    const onModelLoaded = () => {
+      console.log("الموديل اتحمل بنجاح!");
+    };
+
+    // لو حصل خطأ في تحميل الموديل
+    const onModelError = (error) => {
+      console.error("حصل خطأ في تحميل الموديل:", error);
+    };
+
+    // تسجيل الاستماع للأحداث دي
+    el.addEventListener("model-loaded", onModelLoaded);
+    el.addEventListener("model-error", onModelError);
+
+    // لما المكون يطلع، نشيل الاستماع
+    return () => {
+      el.removeEventListener("model-loaded", onModelLoaded);
+      el.removeEventListener("model-error", onModelError);
+    };
+  }, [modelSrc]); // كل ما يتغير مصدر الموديل نرجع نسجل تاني
+
+  console.log(modelSrc)
   return (
     <ResponsiveARView
       furnitureMenu={
@@ -874,7 +898,14 @@ const handleSaveScreenshot = async () => {
       {modelSrc ? (
         <a-scene embedded physics className="w-full h-full rounded-lg shadow-lg">
           {/* المشهد والموديلات */}
-          <a-entity gltf-model={modelSrc} position="0 0 0" scale="1 1 1" static-body />
+        
+          <a-entity     ref={modelRef} 
+           gltf-model={modelSrc}
+            // gltf-model="/white-room1.glb"
+
+            position="0 0 0" scale="1 1 1" static-body />
+      
+
           {/* اضاءه  */}
           <a-entity light="type: ambient; color: #fff; intensity: 1"></a-entity>
           <a-entity light="type: directional; color: #fff; intensity: 0.8" position="1 3 1"></a-entity>
