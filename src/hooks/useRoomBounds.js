@@ -7,6 +7,8 @@ export default function useRoomBounds() {
   useEffect(() => {
     async function computeRoomBounds() {
       const loader = new GLTFLoader();
+      const modelSrc = localStorage.getItem("modelSrc");
+      if (!modelSrc) return;
       loader.load(modelSrc, (gltf) => {
         const model = gltf.scene;
         const box = new THREE.Box3().setFromObject(model);
