@@ -3,7 +3,10 @@
 import React from "react";
 
 import { motion } from "framer-motion";
+
+
 import { BsArrowRight } from "react-icons/bs";
+
 import { FaRegUser, FaImage, FaDownload, FaUpload } from "react-icons/fa";
 
 const LearnUploadFurniture = () => {
