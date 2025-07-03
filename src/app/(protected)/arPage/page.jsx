@@ -1,4 +1,3 @@
-
 "use client";
 import useGetProducts from "@/hooks/useGetProducts";
 import usePostArFile from "@/hooks/usePostArFile";
@@ -64,6 +63,11 @@ export default function Page() {
       setIsMobile(/Mobi|Android/i.test(navigator.userAgent));
     }
   }, []);
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            import('aframe').catch(console.error);
+        }
+    }, []);
   useEffect(() => {
     if (typeof window !== 'undefined' && window.AFRAME &&
       !AFRAME.components['custom-touch-look-controls']) {
@@ -113,7 +117,7 @@ export default function Page() {
     return new Promise((resolve, reject) => {
       const loader = new GLTFLoader();
       loader.load(
-        "/white-room1.glb",
+        modelSrc,
         function (gltf) {
           const model = gltf.scene;
           const box = new THREE.Box3().setFromObject(model);
@@ -145,9 +149,14 @@ export default function Page() {
       );
     });
   }
-
-
-
+  getRoomDimensions()
+  .then((dimensions) => {
+    window.roomBounds = dimensions;
+    console.log("Room bounds loaded:", window.roomBounds);
+  })
+  .catch((error) => {
+    console.error("Failed to get room dimensions:", error);
+  });
 
   const handleAddItem = (itemSrc) => {
     const model = {
@@ -559,9 +568,6 @@ const handleAddToFurnitureList = (newItem) => {
     }
   }
 
-
-
-
   const handleModelClick = (evt, model) => {
     evt.stopPropagation();
     setSelectedModelId(model.id);
@@ -587,36 +593,42 @@ const handleAddToFurnitureList = (newItem) => {
     }
   };
 
-  const handleFurnitureUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      const model = {
-        id: modelId.toString(),
-        src: url,
-        position: cursorPos,
-        scale: "1 1 1",
-        rotation: "0 0 0",
-      };
-      setModels([...models, model]);
-      setModelId(modelId + 1);
+ const handleFurnitureUpload = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    const url = URL.createObjectURL(file);
+    const model = {
+      id: modelId.toString(),
+      src: url,
+      position: cursorPos,
+      scale: "1 1 1",
+      rotation: "0 0 0",
+    };
+    setModels([...models, model]);
+    setModelId(modelId + 1);
 
-      uploadModel(file, {
-        onSuccess: (data) => {
-          console.log("✅ Model uploaded successfully:", data.arFileUrl);
+    uploadModel(file, {
+      onSuccess: (data) => {
+        console.log("Model uploaded successfully:", data.arFileUrl);
+        toast.success("odel uploaded successfully", { duration: 3000 });
+        setModels((prevModels) =>
+          prevModels.map((m) =>
+            m.id === model.id ? { ...m, src: data.arFileUrl } : m
+          )
+        );
+      },
+      onError: (error) => {
+        console.error("Upload failed:", error);
+        toast.error("Upload failed:");
+      },
+      onSettled: () => {
+        // مهما كانت النتيجة، نفضي قيمة input عشان يسمح بإعادة الرفع
+        event.target.value = "";
+      },
+    });
+  }
+};
 
-          setModels((prevModels) =>
-            prevModels.map((m) =>
-              m.id === model.id ? { ...m, src: data.arFileUrl } : m
-            )
-          );
-        },
-        onError: (error) => {
-          console.error("❌ Upload failed:", error);
-        },
-      });
-    }
-  };
   const handleArViewClick = (modelIdOrName) => {
     mutateGetArFile(modelIdOrName, {
       onSuccess: (data) => {
@@ -676,21 +688,21 @@ const handleAddToFurnitureList = (newItem) => {
 
 
   const handleSaveScreenshot = async () => {
-    const sceneEl = document.querySelector("a-scene");
+  const sceneEl = document.querySelector("a-scene");
+  if (!sceneEl) {
+    console.error("❌ No scene found.");
+    return;
+  }
 
-    if (!sceneEl) {
-      console.error("❌ No scene found.");
-      return;
-    }
+  // حاول تأخذ الكانفاس بطرق مختلفة
+  let canvas = sceneEl.canvas || document.querySelector("canvas.a-canvas") || (sceneEl.renderer && sceneEl.renderer.domElement);
 
-    // ننتظر canvas يجهز
-    let retries = 0;
-    while ((!sceneEl.canvas || typeof sceneEl.canvas.toDataURL !== "function") && retries < 10) {
-      await new Promise((res) => setTimeout(res, 300));
-      retries++;
-    }
-
-    const canvas = sceneEl.canvas;
+  let retries = 0;
+  while ((!canvas || typeof canvas.toDataURL !== "function") && retries < 15) {
+    await new Promise((res) => setTimeout(res, 300));
+    canvas = sceneEl.canvas || document.querySelector("canvas.a-canvas") || (sceneEl.renderer && sceneEl.renderer.domElement);
+    retries++;
+  }
 
     if (!canvas || typeof canvas.toDataURL !== "function") {
       console.error("❌ Canvas not ready or unsupported on this device.");
@@ -698,33 +710,37 @@ const handleAddToFurnitureList = (newItem) => {
       return;
     }
 
-    const base64Image = canvas.toDataURL("image/png");
+  // تأكد إن المشهد ظاهر (اختياري)
+  if (sceneEl.hasLoaded === false) {
+    console.error("❌ Scene not fully loaded yet.");
+    toast.error("المشهد غير جاهز بعد.");
+    return;
+  }
 
-    if (!base64Image?.startsWith("data:image")) {
-      console.error("❌ Invalid image data.");
-      return;
-    }
+  // خذ الصورة
+  const base64Image = canvas.toDataURL("image/png");
+  if (!base64Image?.startsWith("data:image")) {
+    console.error("❌ Invalid image data.");
+    return;
+  }
 
-    SaveProjects(
-      {
-        image: base64Image,
-        userEmail: "gehanRashed@gmail.com",
+  SaveProjects(
+    {
+      image: base64Image,
+      userEmail: "gehanRashed@gmail.com",
+    },
+    {
+      onSuccess: () => {
+        toast.success("Uploaded successfully", { autoClose: 5000 });
+        router.push("/projects");
       },
-      {
-        onSuccess: () => {
-          toast.success("Uploaded successfully", {
-            autoClose: 5000,
-          });
-          router.push("/projects");
-        },
-        onError: (err) => {
-          console.error(" Upload error:", err);
-          toast.error("فشل في رفع الصورة.");
-        },
-      }
-    );
-  };
-
+      onError: (err) => {
+        console.error(" Upload error:", err);
+        toast.error("فشل في رفع الصورة.");
+      },
+    }
+  );
+};
   return (
     <ResponsiveARView
       furnitureMenu={
@@ -790,6 +806,7 @@ const handleAddToFurnitureList = (newItem) => {
                   setMenuPosition={setMenuPosition}
                   setQrCodeData={setQrCodeData}
                   setShowQRPopup={setShowQRPopup}
+                  mutateGetArFile={mutateGetArFile}
                 // setShowMenu={setShowMenu}
                 />
               </div>
