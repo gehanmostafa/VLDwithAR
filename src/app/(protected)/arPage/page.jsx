@@ -7,7 +7,6 @@ import useUploadModel from "@/hooks/useUploadModel";
 import useGetArFile from "@/hooks/useGetArFile";
 import FurnitureMenu from "@/components/common/FurnitureMenu"
 import ControlMenu from "@/components/common/ControlMenu";
-import ArViewControl from "@/components/common/ArViewControl";
 import MeasurementTool from "@/components/common/MeasurementTool";
 import MobileResponsiveControlMenu from '@/components/common/MobileResponsiveControlMenu';
 import ResponsiveARView from '@/components/common/ResponsiveARView';
@@ -18,7 +17,6 @@ import { useState, useEffect, useRef } from "react";
 import usePostSaveProjects from "@/hooks/projects/usePostSaveProject";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-
 export default function Page() {
   useRoomBound();
   const [models, setModels] = useState([]);
@@ -41,7 +39,6 @@ export default function Page() {
   const draggingRef = useRef(false);
   const lastTouchRef = useRef({ x: 0, y: 0 });
   const router = useRouter();
-
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 1, z: 0 });
   const [isMobile, setIsMobile] = useState(false);
   const [showDimensionsDisplay, setShowDimensionsDisplay] = useState(false);
@@ -51,11 +48,9 @@ export default function Page() {
   const { mutate: SaveProjects } = usePostSaveProjects();
   const { mutate: uploadModel } = useUploadModel();     // دي خاصة برفع الموديل
   const [arFileUrl, setArFileUrl] = useState(null);
-
   const { mutate: mutateGetArFile } = useGetArFile();
   const [floorColor, setFloorColor] = useState("#ccc");
   const [wallColor, setWallColor] = useState("#4CAF50");
-
   useEffect(() => {
     const savedFloor = localStorage.getItem("floorColor");
     const savedWall = localStorage.getItem("wallColor");
@@ -76,9 +71,6 @@ export default function Page() {
       localStorage.setItem("wallColor", value);
     }
   };
-
-
-
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setIsMobile(/Mobi|Android/i.test(navigator.userAgent));
@@ -133,54 +125,6 @@ export default function Page() {
       });
     }
   }, []);
-  // --- Compute room boundaries ---
-  // async function getRoomDimensions() {
-  //   return new Promise((resolve, reject) => {
-  //     const loader = new GLTFLoader();
-  //     loader.load(
-  //       modelSrc,
-  //       function (gltf) {
-  //         const model = gltf.scene;
-  //         const box = new THREE.Box3().setFromObject(model);
-  //         const width = box.max.x - box.min.x;
-  //         const depth = box.max.z - box.min.z;
-  //         const height = box.max.y - box.min.y;
-  //         const wallThickness = 0.5;
-  //         const floorThickness = 0.2;
-  //         const ceilingThickness = 0.2;
-  //         const internalWidth = width - 2 * wallThickness;
-  //         const internalDepth = depth - 2 * wallThickness;
-  //         resolve({
-  //           minX: box.min.x,
-  //           maxX: box.max.x,
-  //           minZ: box.min.z,
-  //           maxZ: box.max.z,
-  //           internalWidth,
-  //           internalDepth,
-  //           internalHeight: height - floorThickness - ceilingThickness,
-  //         });
-  //       },
-  //       (xhr) => {
-  //         console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
-  //       },
-  //       (error) => {
-  //         console.error("An error happened:", error);
-  //         reject(error);
-  //       }
-  //     );
-  //   });
-  // }
-  //   const isCustomRoom = localStorage.getItem('useCustomRoom') === 'true';
-  // if (!isCustomRoom && modelSrc) {
-  //   getRoomDimensions()
-  //     .then((dimensions) => {
-  //       window.roomBounds = dimensions;
-  //       console.log("Room bounds loaded:", window.roomBounds);
-  //     })
-  //     .catch((error) => {
-  //       console.error("Failed to get room dimensions:", error);
-  //     });
-  // }
   async function getRoomDimensions(src) {
     return new Promise((resolve, reject) => {
       const loader = new GLTFLoader();
@@ -791,49 +735,45 @@ export default function Page() {
       }
     });
   }, [models]);
-  const handleSaveScreenshot = () => {
-    const sceneEl = document.querySelector("a-scene");
-    const canvas = sceneEl?.renderer?.domElement;
+  // const handleSaveScreenshot = () => {
+  //   const sceneEl = document.querySelector("a-scene");
+  //   const canvas = sceneEl?.renderer?.domElement;
 
-    if (!sceneEl || !sceneEl.renderer || !sceneEl.camera || !canvas) {
-      console.error("❌ Scene or renderer not ready.");
-      return;
-
-
-
-    }
-    sceneEl.renderer.render(sceneEl.object3D, sceneEl.camera);
-    const base64Image = canvas.toDataURL("image/png");
+  //   if (!sceneEl || !sceneEl.renderer || !sceneEl.camera || !canvas) {
+  //     console.error("❌ Scene or renderer not ready.");
+  //     return;
 
 
 
-    if (!base64Image?.startsWith("data:image")) {
-      console.error("Invalid image");
-      return;
-    }
-
-    SaveProjects(
-      {
-        image: base64Image,
-        userEmail: "gehanRashed@gmail.com",
-      },
-      {
-        onSuccess: () => {
-          console.log("Uploaded successfully");
-
-          router.push("/projects");
-
-        },
-        onError: (err) => {
-          console.error(" Upload error:", err);
-        },
-      }
-    );
-  };
+  //   }
+  //   sceneEl.renderer.render(sceneEl.object3D, sceneEl.camera);
+  //   const base64Image = canvas.toDataURL("image/png");
 
 
 
-  //   const handleSaveScreenshot = async () => {
+  //   if (!base64Image?.startsWith("data:image")) {
+  //     console.error("Invalid image");
+  //     return;
+  //   }
+
+  //   SaveProjects(
+  //     {
+  //       image: base64Image,
+  //       userEmail: "lzayd927@gmail.com",
+  //     },
+  //     {
+  //       onSuccess: () => {
+  //         console.log("Uploaded successfully");
+
+  //         router.push("/projects");
+
+  //       },
+  //       onError: (err) => {
+  //         console.error(" Upload error:", err);
+  //       },
+  //     }
+  //   );
+  // };
   //   const sceneEl = document.querySelector("a-scene");
   //   if (!sceneEl) {
   //     console.error("❌ No scene found.");
@@ -888,7 +828,216 @@ export default function Page() {
   //       }
   //     );
   //   };
+  // 🔧 الدالة المحسنة لحفظ الصور - تدعم الموبايل والكمبيوتر
+const handleSaveScreenshot = async () => {
+  try {
+    const sceneEl = document.querySelector("a-scene");
+    if (!sceneEl) {
+      console.error("❌ No scene found.");
+      toast.error("لم يتم العثور على المشهد");
+      return;
+    }
+
+    // انتظار تحميل المشهد
+    if (!sceneEl.hasLoaded) {
+      console.log("⏳ Waiting for scene to load...");
+      await new Promise((resolve) => {
+        sceneEl.addEventListener('loaded', resolve, { once: true });
+      });
+    }
+
+    // محاولة الحصول على الكانفاس بطرق مختلفة
+    let canvas = null;
+    let retryCount = 0;
+    const maxRetries = 10;
+
+    while (!canvas && retryCount < maxRetries) {
+      // طرق مختلفة للحصول على الكانفاس
+      canvas = sceneEl.canvas || 
+               sceneEl.renderer?.domElement || 
+               document.querySelector("canvas.a-canvas") ||
+               document.querySelector("canvas[data-aframe-canvas]") ||
+               document.querySelector("canvas");
+
+      if (!canvas) {
+        console.log(`🔄 Retry ${retryCount + 1}/${maxRetries} - Canvas not found`);
+        await new Promise(resolve => setTimeout(resolve, 200));
+        retryCount++;
+      }
+    }
+
+    if (!canvas) {
+      console.error("❌ Canvas not found after retries");
+      toast.error("تعذر العثور على لوحة الرسم");
+      return;
+    }
+
+    // التحقق من إمكانية استخدام toDataURL
+    if (typeof canvas.toDataURL !== "function") {
+      console.error("❌ Canvas does not support toDataURL");
+      toast.error("المتصفح لا يدعم حفظ الصور");
+      return;
+    }
+
+    // للموبايل: إجبار إعادة الرسم
+    if (isMobile && sceneEl.renderer) {
+      sceneEl.renderer.render(sceneEl.object3D, sceneEl.camera);
+    }
+
+    // محاولة الحصول على الصورة
+    let base64Image;
+    try {
+      base64Image = canvas.toDataURL("image/png", 1.0);
+    } catch (error) {
+      // إذا فشل PNG، جرب JPEG
+      try {
+        base64Image = canvas.toDataURL("image/jpeg", 0.9);
+      } catch (jpegError) {
+        console.error("❌ Failed to capture image:", jpegError);
+        toast.error("فشل في التقاط الصورة");
+        return;
+      }
+    }
+
+    // التحقق من صحة البيانات
+    if (!base64Image || !base64Image.startsWith("data:image")) {
+      console.error("❌ Invalid image data");
+      toast.error("بيانات الصورة غير صالحة");
+      return;
+    }
+
+    // رفع الصورة
+    SaveProjects(
+      {
+        image: base64Image,
+        userEmail: "lzayd927@gmail.com",
+      },
+      {
+        onSuccess: () => {
+          console.log("✅ Screenshot saved successfully");
+          toast.success("تم حفظ الصورة بنجاح");
+          router.push("/projects");
+        },
+        onError: (err) => {
+          console.error("❌ Upload error:", err);
+          toast.error("فشل في رفع الصورة");
+        },
+      }
+    );
+
+  } catch (error) {
+    console.error("❌ Unexpected error:", error);
+    toast.error("حدث خطأ غير متوقع");
+  }
+};
+
+// 🔧 إضافة دالة للتحقق من جاهزية الكانفاس
+const checkCanvasReady = () => {
+  const sceneEl = document.querySelector("a-scene");
+  if (!sceneEl) return false;
+  
+  const canvas = sceneEl.canvas || 
+                sceneEl.renderer?.domElement || 
+                document.querySelector("canvas.a-canvas");
+  
+  return canvas && typeof canvas.toDataURL === "function";
+};
+
+// 🔧 إضافة دالة لإجبار إعادة الرسم (للموبايل)
+const forceRender = () => {
+  const sceneEl = document.querySelector("a-scene");
+  if (sceneEl && sceneEl.renderer && sceneEl.camera) {
+    sceneEl.renderer.render(sceneEl.object3D, sceneEl.camera);
+  }
+};
+
+// 🔧 تحسين زر الحفظ
+const SaveButton = () => {
+  const [isReady, setIsReady] = useState(false);
+  
+  useEffect(() => {
+    const checkReady = () => {
+      setIsReady(checkCanvasReady());
+    };
+    
+    // فحص دوري للتأكد من جاهزية الكانفاس
+    const interval = setInterval(checkReady, 1000);
+    checkReady(); // فحص فوري
+    
+    return () => clearInterval(interval);
+  }, []);
+
   return (
+    <button
+      onClick={handleSaveScreenshot}
+      disabled={!isReady}
+      className={`w-10 h-10 flex items-center justify-center text-lg rounded-full shadow transition-all duration-300 ${
+        isReady 
+          ? 'bg-white text-gray-800 border border-gray-300 hover:bg-gray-100 cursor-pointer'
+          : 'bg-gray-300 text-gray-500 border border-gray-400 cursor-not-allowed'
+      }`}
+      title={isReady ? "Save Screenshot" : "Please wait..."}
+    >
+      💾
+    </button>
+  );
+};
+
+// 🔧 إضافة useEffect للتحقق من WebGL
+useEffect(() => {
+  // التحقق من دعم WebGL
+  const canvas = document.createElement('canvas');
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  
+  if (!gl) {
+    console.warn("⚠️ WebGL not supported - screenshots may not work");
+    toast.warning("المتصفح لا يدعم WebGL بشكل كامل");
+  }
+  
+  // التحقق من دعم toDataURL
+  try {
+    const testCanvas = document.createElement('canvas');
+    testCanvas.width = testCanvas.height = 1;
+    const ctx = testCanvas.getContext('2d');
+    ctx.fillStyle = 'red';
+    ctx.fillRect(0, 0, 1, 1);
+    testCanvas.toDataURL();
+  } catch (error) {
+    console.warn("⚠️ toDataURL not supported");
+    toast.warning("المتصفح لا يدعم حفظ الصور");
+  }
+}, []);
+
+// 🔧 إضافة تحسينات خاصة بالموبايل
+useEffect(() => {
+  if (isMobile) {
+    // تأخير قصير للتأكد من تحميل المشهد
+    const mobileTimeout = setTimeout(() => {
+      const sceneEl = document.querySelector("a-scene");
+      if (sceneEl) {
+        // إعدادات خاصة بالموبايل
+        sceneEl.setAttribute('renderer', 'antialias: true; colorManagement: true');
+        sceneEl.setAttribute('vr-mode-ui', 'enabled: false');
+      }
+    }, 1000);
+    
+    return () => clearTimeout(mobileTimeout);
+  }
+}, [isMobile]);
+  
+  return (
+    <>
+    {/* ✅ تحميل مكتبة A-Frame أولاً */}
+      <Script
+        src="https://unpkg.com/aframe@1.4.2/dist/aframe.min.js"
+        strategy="beforeInteractive"
+      />
+
+      {/* ✅ بعد aframe نحمل joystick-controls */}
+      <Script
+        src="https://unpkg.com/aframe-joystick-controls@4.0.1/dist/aframe-joystick-controls.min.js"
+        strategy="afterInteractive"
+      />
     <ResponsiveARView
       furnitureMenu={
         <FurnitureMenu
@@ -929,11 +1078,6 @@ export default function Page() {
                 />
               </div>
             )}
-            <ArViewControl
-              selectedModelId={selectedModelId}
-              onArViewClick={() => handleArViewClick(selectedModelId)}
-            />
-
             {/* Mobile menu: */}
             {isMobile && (
               <div className="block md:hidden">
@@ -1018,94 +1162,6 @@ export default function Page() {
         </>
       }
     >
-      {/* 🟡 دا المشهد الرئيسي جوا ResponsiveARView */}
-      {/* {modelSrc ? (
-        <a-scene embedded physics className="w-full h-full rounded-lg shadow-lg">
-          {/* المشهد والموديلات */}
-      {/* <a-entity gltf-model={modelSrc} position="0 0 0" scale="1 1 1" static-body /> */}
-      {/* اضاءه  */}
-      {/* <a-entity light="type: ambient; color: #fff; intensity: 1"></a-entity>
-          <a-entity light="type: directional; color: #fff; intensity: 0.5" position="1 3 1"></a-entity> */}
-      {/* {<a-plane
-            id="floor"
-            position="0 0 0"
-            rotation="-90 0 0"
-            width="10"
-            height="10"
-            opacity="0"
-            material="transparent: true"
-            class="clickable-floor"
-          ></a-plane> */}
-
-
-      {/* {models.map((model) => (
-            <a-entity
-              drag-drop
-              key={model.id}
-              gltf-model={model.src}
-              position={model.position}
-              rotation={model.rotation}
-              scale={model.scale}
-              id={model.id}
-              className="clickable-item"
-              onClick={(evt) => handleModelClick(evt, model)}
-            // onTouchStart={handleTouchStart}
-            // onTouchMove={handleTouchMove}
-            // onTouchEnd={handleTouchEnd}
-            />
-          ))} */}
-      {/* <Script src="https://unpkg.com/aframe-joystick-controls@4.0.1/dist/aframe-joystick-controls.min.js" /> */}
-
-      {/* <a-entity
-            id="rig"
-            movement-controls="enabled: true; fly: false"
-            joystick-controls="mode: joystick; joySticky: true"
-            position="0 1.6 4"
-          >
-            {isMobile ? (
-
-              <a-camera
-                position="0 0 0"
-                custom-touch-look-controls
-                look-controls="enabled: false"
-                wasd-controls="enabled: false"
-              >
-                <a-cursor
-                  rayOrigin="entity"
-                  raycaster="objects: .clickable-item, .clickable-floor"
-                  fuse="false"
-                  material="color: red"
-                  position="0 0 -1.5"
-                  scale="2 2 2"
-                ></a-cursor>
-              </a-camera>
-
-            ) : (
-
-              <a-camera
-                position="0 0 0"
-                scale="2 2 2"
-                look-controls="touchEnabled: true; reverseTouchDrag: false; enabled: true; sensitivity: 0.1"
-                wasd-controls="enabled: true"
-              >
-                <a-cursor
-                  rayOrigin="entity"
-                  raycaster="objects: .clickable-item, .clickable-floor"
-                  material="color: red"
-                  fuse="false"
-                  position="0 0 -1.5"
-                  scale="2 2 2"
-                ></a-cursor>
-              </a-camera>
-
-            )}
-          </a-entity> */}
-
-
-      {/* </a-scene> */}
-      {/* ) : (
-        <img src="/main2Home.jpg" alt="Main Furniture" className="w-full h-full object-cover" />
-      )} */}
       {useCustomRoom ? (
         <a-scene embedded physics="debug: false" className="w-full h-full rounded-lg shadow-lg">
           {/* 🟡 إضاءة ناعمة وواقعية */}
@@ -1278,6 +1334,7 @@ export default function Page() {
         onClose={handleCloseDimensions}
       />
     </ResponsiveARView>
+     </>
   );
 
 }
