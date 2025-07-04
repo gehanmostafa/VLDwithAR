@@ -114,8 +114,8 @@ import { motion } from 'framer-motion';
 import { FaPlus } from 'react-icons/fa';
 
 const rooms = [
-  { id: 1, name: 'Modern Bedroom', src: '/Room1.glb' },
-  { id: 2, name: 'Classic Living Room', src: '/Room2.glb' },
+  { id: 1, name: 'Modern Bedroom', src: '/mobile_home.glb' },
+  { id: 2, name: 'Classic Living Room', src: '/white-room1.glb' },
   { id: 3, name: 'Office Space', src: '/Room3.glb' },
   { id: 4, name: 'Small Studio', src: '/Room4.glb' },
   { id: 999, name: 'Customizable Room', src: 'custom-aframe-room' },
