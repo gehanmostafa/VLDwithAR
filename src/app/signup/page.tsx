@@ -4311,6 +4311,1070 @@
 //     </div>
 //   );
 // }
+// 'use client';
+
+// import { useEffect, useState, Suspense } from 'react';
+// import Image from 'next/image';
+// import Link from 'next/link';
+// import { useRouter } from 'next/navigation';
+// import Confetti from 'react-confetti';
+// import { Canvas } from '@react-three/fiber';
+// import { OrbitControls, useGLTF } from '@react-three/drei';
+
+// interface RegisterResponse {
+//   message?: string;
+// }
+
+// // 3D Model Loader
+// function Model({ url }: { url: string }) {
+//   const { scene } = useGLTF(url);
+//   return <primitive object={scene} scale={1.5} />;
+// }
+// useGLTF.preload('/room.glb');
+
+// export default function SignUpPage() {
+//   const router = useRouter();
+//   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState('');
+//   const [success, setSuccess] = useState('');
+//   const [showConfetti, setShowConfetti] = useState(false);
+//   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+//   const [showModal, setShowModal] = useState(false);
+//   const [resetEmail, setResetEmail] = useState('');
+//   const [resetMsg, setResetMsg] = useState('');
+
+//   useEffect(() => {
+//     const updateSize = () => {
+//       setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+//     };
+//     updateSize();
+//     window.addEventListener('resize', updateSize);
+//     return () => window.removeEventListener('resize', updateSize);
+//   }, []);
+
+//   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     setFormData({ ...formData, [e.target.id]: e.target.value });
+//   };
+
+//   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+//     e.preventDefault();
+//     setError('');
+//     setSuccess('');
+
+//     if (!formData.name || !formData.email || !formData.password) {
+//       setError('Please fill in all fields.');
+//       return;
+//     }
+
+//     if (formData.password.length < 6) {
+//       setError('Password must be at least 6 characters.');
+//       return;
+//     }
+
+//     setLoading(true);
+//     try {
+//       const res = await fetch('http://13.48.25.101:8000/api/auth/register', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({
+//           Name: formData.name,
+//           Email: formData.email,
+//           Password: formData.password,
+//         }),
+//       });
+
+//       const data: RegisterResponse = await res.json();
+//       if (!res.ok) throw new Error(data.message || 'Signup failed');
+
+//       setSuccess('Account created successfully! Redirecting to login...');
+//       setFormData({ name: '', email: '', password: '' });
+//       setShowConfetti(true);
+//       setTimeout(() => router.push('/login'), 3000);
+//     } catch (err) {
+//       const errorMessage = err instanceof Error ? err.message : 'Something went wrong.';
+//       setError(errorMessage);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleResetPassword = async () => {
+//     setResetMsg('');
+//     if (!resetEmail) {
+//       setResetMsg('Please enter your email.');
+//       return;
+//     }
+
+//     try {
+//       const res = await fetch('http://13.48.25.101:8000/api/auth/forgot-password', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({ email: resetEmail }),
+//       });
+
+//       const data = await res.json();
+//       if (!res.ok) throw new Error(data.message || 'Reset failed');
+
+//       setResetMsg('Password reset link sent to your email.');
+//       setResetEmail('');
+//     } catch (err) {
+//       const errorMsg = err instanceof Error ? err.message : 'Error sending reset link.';
+//       setResetMsg(errorMsg);
+//     }
+//   };
+
+//   return (
+//     <div className="relative min-h-screen flex items-center justify-center px-4 py-8 overflow-hidden">
+//       <Image
+//         src="/w1.svg"
+//         alt="Background"
+//         fill
+//         className="absolute inset-0 object-cover z-0"
+//         priority
+//       />
+
+//       {showConfetti && (
+//         <Confetti
+//           width={windowSize.width}
+//           height={windowSize.height}
+//           numberOfPieces={800}
+//           gravity={0.8}
+//           wind={0.01}
+//           recycle={false}
+//         />
+//       )}
+
+//       <div className="relative z-10 w-full max-w-5xl min-h-[500px] flex flex-col lg:flex-row rounded-[30px] bg-white/90 backdrop-blur-sm overflow-hidden shadow-2xl">
+//         {/* Form Section */}
+//         <div className="w-full lg:w-1/2 px-6 sm:px-10 py-8 sm:py-12 bg-[#eef4f3]/80 flex flex-col justify-center">
+//           <h2 className="text-2xl sm:text-3xl font-bold text-[#0d4c3e] mb-1">Sign Up</h2>
+//           <p className="text-sm text-gray-600 mb-8">Create your account to get started</p>
+
+//           <form className="space-y-5" onSubmit={handleSubmit}>
+//             <input
+//               id="name"
+//               type="text"
+//               placeholder="Name"
+//               value={formData.name}
+//               onChange={handleChange}
+//               required
+//               className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e]"
+//             />
+//             <input
+//               id="email"
+//               type="email"
+//               placeholder="Email"
+//               value={formData.email}
+//               onChange={handleChange}
+//               required
+//               className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e]"
+//             />
+//             <input
+//               id="password"
+//               type="password"
+//               placeholder="Password"
+//               value={formData.password}
+//               onChange={handleChange}
+//               required
+//               className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e]"
+//             />
+
+//             {loading && <p className="text-sm text-gray-600">Creating your account...</p>}
+//             {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+//             {success && <p className="text-green-600 text-sm text-center">{success}</p>}
+
+//             <button
+//               type="submit"
+//               disabled={loading}
+//               className={`w-full text-white py-3 rounded-xl font-semibold transition-all duration-500 ${
+//                 loading
+//                   ? 'bg-gray-400 cursor-not-allowed'
+//                   : 'bg-[#0d4c3e] hover:bg-[#093b30] shadow-[0_0_12px_#0d4c3e80] hover:shadow-[0_0_20px_#0d4c3eff]'
+//               }`}
+//             >
+//               {loading ? 'Signing up...' : 'Sign Up'}
+//             </button>
+//           </form>
+
+//           <div className="text-sm text-gray-600 mt-6 flex flex-col sm:flex-row justify-between gap-3 sm:gap-0">
+//             <button onClick={() => setShowModal(true)} className="underline hover:text-[#0d4c3e] w-fit">
+//               Forgot my password
+//             </button>
+
+//             <Link href="/login" className="font-semibold underline hover:text-[#0d4c3e] w-fit">
+//               Already have an account? Login
+//             </Link>
+//           </div>
+//         </div>
+
+//         {/* 3D Viewer Section */}
+//         <div className="hidden lg:block w-1/2 relative">
+//           <div className="absolute inset-0">
+//             <Canvas camera={{ position: [0, 0, 5], fov: 50 }} style={{ background: '#f9f9f9' }}>
+//               <ambientLight intensity={0.7} />
+//               <directionalLight position={[5, 5, 5]} intensity={1} />
+//               <Suspense fallback={null}>
+//                 <Model url="/room.glb" />
+//               </Suspense>
+//               <OrbitControls
+//                 autoRotate={false}
+//                 autoRotateSpeed={1.5}
+//                 enableZoom={false}
+//                 enablePan={false}
+//                 maxPolarAngle={Math.PI / 2}
+//                 minPolarAngle={Math.PI / 2.5}
+//                 maxAzimuthAngle={Math.PI / 2}
+//                 minAzimuthAngle={-Math.PI / 2}
+//               />
+//             </Canvas>
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* Forgot Password Modal */}
+//       {showModal && (
+//         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-2 sm:px-4">
+//           <div className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto animate-fade-in">
+//             <h3 className="text-xl font-semibold text-[#0d4c3e] mb-4">Reset Your Password</h3>
+//             <input
+//               type="email"
+//               placeholder="Enter your email"
+//               value={resetEmail}
+//               onChange={(e) => setResetEmail(e.target.value)}
+//               className="w-full mb-4 px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e]"
+//             />
+//             {resetMsg && (
+//               <p className={`text-sm mb-2 ${resetMsg.includes('sent') ? 'text-green-600' : 'text-red-500'}`}>
+//                 {resetMsg}
+//               </p>
+//             )}
+//             <div className="flex justify-end gap-3">
+//               <button onClick={() => setShowModal(false)} className="text-gray-600 hover:text-[#0d4c3e] font-semibold">
+//                 Cancel
+//               </button>
+//               <button
+//                 onClick={handleResetPassword}
+//                 className="bg-[#0d4c3e] text-white px-4 py-2 rounded-xl hover:bg-[#093b30] transition"
+//               >
+//                 Send Reset Link
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+//     </div>
+//   );
+// }
+// 'use client';
+
+// import { useEffect, useState, Suspense } from 'react';
+// import Image from 'next/image';
+// import Link from 'next/link';
+// import { useRouter } from 'next/navigation';
+// import Confetti from 'react-confetti';
+// import { Canvas } from '@react-three/fiber';
+// import { OrbitControls, useGLTF } from '@react-three/drei';
+// import { motion } from 'framer-motion';
+
+// interface RegisterResponse {
+//   message?: string;
+// }
+
+// function Model({ url }: { url: string }) {
+//   const { scene } = useGLTF(url);
+//   return <primitive object={scene} scale={1.5} />;
+// }
+// useGLTF.preload('/room.glb');
+
+// export default function SignUpPage() {
+//   const router = useRouter();
+//   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState('');
+//   const [success, setSuccess] = useState('');
+//   const [showConfetti, setShowConfetti] = useState(false);
+//   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+//   const [showModal, setShowModal] = useState(false);
+//   const [resetEmail, setResetEmail] = useState('');
+//   const [resetMsg, setResetMsg] = useState('');
+
+//   useEffect(() => {
+//     const updateSize = () => {
+//       setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+//     };
+//     updateSize();
+//     window.addEventListener('resize', updateSize);
+//     return () => window.removeEventListener('resize', updateSize);
+//   }, []);
+
+//   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     setFormData({ ...formData, [e.target.id]: e.target.value });
+//   };
+
+//   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+//     e.preventDefault();
+//     setError('');
+//     setSuccess('');
+
+//     if (!formData.name || !formData.email || !formData.password) {
+//       setError('Please fill in all fields.');
+//       return;
+//     }
+
+//     if (formData.password.length < 6) {
+//       setError('Password must be at least 6 characters.');
+//       return;
+//     }
+
+//     setLoading(true);
+//     try {
+//       const res = await fetch('http://13.48.25.101:8000/api/auth/register', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({
+//           Name: formData.name,
+//           Email: formData.email,
+//           Password: formData.password,
+//         }),
+//       });
+
+//       const data: RegisterResponse = await res.json();
+//       if (!res.ok) throw new Error(data.message || 'Signup failed');
+
+//       setSuccess('Account created successfully! Redirecting to login...');
+//       setFormData({ name: '', email: '', password: '' });
+//       setShowConfetti(true);
+//       setTimeout(() => router.push('/login'), 3000);
+//     } catch (err) {
+//       const errorMessage = err instanceof Error ? err.message : 'Something went wrong.';
+//       setError(errorMessage);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleResetPassword = async () => {
+//     setResetMsg('');
+//     if (!resetEmail) {
+//       setResetMsg('Please enter your email.');
+//       return;
+//     }
+
+//     try {
+//       const res = await fetch('http://13.48.25.101:8000/api/auth/forgot-password', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({ email: resetEmail }),
+//       });
+
+//       const data = await res.json();
+//       if (!res.ok) throw new Error(data.message || 'Reset failed');
+//       setResetMsg('Password reset link sent to your email.');
+//       setResetEmail('');
+//     } catch (err) {
+//       const errorMsg = err instanceof Error ? err.message : 'Error sending reset link.';
+//       setResetMsg(errorMsg);
+//     }
+//   };
+
+//   return (
+//     <div className="relative min-h-screen flex items-center justify-center px-4 py-8 overflow-hidden bg-gradient-to-br from-[#e8f5f1] to-[#f2fcf8]">
+//       <Image
+//         src="/w1.svg"
+//         alt="Background"
+//         fill
+//         className="absolute inset-0 object-cover z-0 pointer-events-none"
+//         priority
+//       />
+
+//       {showConfetti && (
+//         <Confetti
+//           width={windowSize.width}
+//           height={windowSize.height}
+//           numberOfPieces={500}
+//           gravity={0.4}
+//           wind={0.01}
+//           recycle={false}
+//         />
+//       )}
+
+//       <motion.div
+//         initial={{ opacity: 0, y: 40 }}
+//         animate={{ opacity: 1, y: 0 }}
+//         transition={{ duration: 1, ease: 'easeOut' }}
+//         className="relative z-10 w-full max-w-5xl min-h-[500px] flex flex-col lg:flex-row rounded-[30px] bg-white/90 backdrop-blur-md shadow-[0_0_30px_rgba(0,0,0,0.15)] overflow-hidden"
+//       >
+//         {/* Left Form Section */}
+//         <motion.div
+//           initial={{ opacity: 0, x: -30 }}
+//           animate={{ opacity: 1, x: 0 }}
+//           transition={{ delay: 0.3, duration: 1, ease: 'easeOut' }}
+//           className="w-full lg:w-1/2 px-6 sm:px-10 py-10 sm:py-14 bg-[#eef4f3]/80 flex flex-col justify-center"
+//         >
+//           <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0d4c3e] mb-2">Sign Up</h2>
+//           <p className="text-sm text-gray-600 mb-8">Create your account to get started</p>
+
+//           <form className="space-y-5" onSubmit={handleSubmit}>
+//             <input
+//               id="name"
+//               type="text"
+//               placeholder="Name"
+//               value={formData.name}
+//               onChange={handleChange}
+//               required
+//               className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e]"
+//             />
+//             <input
+//               id="email"
+//               type="email"
+//               placeholder="Email"
+//               value={formData.email}
+//               onChange={handleChange}
+//               required
+//               className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e]"
+//             />
+//             <input
+//               id="password"
+//               type="password"
+//               placeholder="Password"
+//               value={formData.password}
+//               onChange={handleChange}
+//               required
+//               className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e]"
+//             />
+
+//             {loading && <p className="text-sm text-gray-600">Creating your account...</p>}
+//             {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+//             {success && <p className="text-green-600 text-sm text-center">{success}</p>}
+
+//             <motion.button
+//               whileHover={{ scale: 1.03 }}
+//               transition={{ duration: 0.4 }}
+//               type="submit"
+//               disabled={loading}
+//               className={`w-full py-3 rounded-xl font-semibold transition-all duration-500 ${
+//                 loading
+//                   ? 'bg-gray-400 cursor-not-allowed text-white'
+//                   : 'bg-[#0d4c3e] text-white hover:bg-[#093b30] shadow-[0_0_12px_#0d4c3e80] hover:shadow-[0_0_20px_#0d4c3eff]'
+//               }`}
+//             >
+//               {loading ? 'Signing up...' : 'Sign Up'}
+//             </motion.button>
+//           </form>
+
+//           <div className="text-sm text-gray-600 mt-6 flex flex-col sm:flex-row justify-between gap-3 sm:gap-0">
+//             <button onClick={() => setShowModal(true)} className="underline hover:text-[#0d4c3e] w-fit">
+//               Forgot my password
+//             </button>
+//             <Link href="/login" className="font-semibold underline hover:text-[#0d4c3e] w-fit">
+//               Already have an account? Login
+//             </Link>
+//           </div>
+//         </motion.div>
+
+//         {/* Right 3D Section */}
+//         <motion.div
+//           initial={{ opacity: 0, x: 30 }}
+//           animate={{ opacity: 1, x: 0 }}
+//           transition={{ delay: 0.3, duration: 1, ease: 'easeOut' }}
+//           className="hidden lg:block w-1/2 relative"
+//         >
+//           <div className="absolute inset-0">
+//             <Canvas camera={{ position: [0, 0, 5], fov: 50 }} style={{ background: '#f9f9f9' }}>
+//               <ambientLight intensity={0.7} />
+//               <directionalLight position={[5, 5, 5]} intensity={1} />
+//               <Suspense fallback={null}>
+//                 <Model url="/room.glb" />
+//               </Suspense>
+//               <OrbitControls
+//                 autoRotate
+//                 autoRotateSpeed={1}
+//                 enableZoom={false}
+//                 enablePan={false}
+//                 maxPolarAngle={Math.PI / 2}
+//                 minPolarAngle={Math.PI / 2.5}
+//                 maxAzimuthAngle={Math.PI / 2}
+//                 minAzimuthAngle={-Math.PI / 2}
+//               />
+//             </Canvas>
+//           </div>
+//         </motion.div>
+//       </motion.div>
+
+//       {/* Password Reset Modal */}
+//       {showModal && (
+//         <motion.div
+//           initial={{ opacity: 0 }}
+//           animate={{ opacity: 1 }}
+//           className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4"
+//         >
+//           <motion.div
+//             initial={{ scale: 0.9, opacity: 0 }}
+//             animate={{ scale: 1, opacity: 1 }}
+//             transition={{ duration: 0.4, ease: 'easeOut' }}
+//             className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto"
+//           >
+//             <h3 className="text-xl font-semibold text-[#0d4c3e] mb-4">Reset Your Password</h3>
+//             <input
+//               type="email"
+//               placeholder="Enter your email"
+//               value={resetEmail}
+//               onChange={(e) => setResetEmail(e.target.value)}
+//               className="w-full mb-4 px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e]"
+//             />
+//             {resetMsg && (
+//               <p className={`text-sm mb-2 ${resetMsg.includes('sent') ? 'text-green-600' : 'text-red-500'}`}>
+//                 {resetMsg}
+//               </p>
+//             )}
+//             <div className="flex justify-end gap-3">
+//               <button onClick={() => setShowModal(false)} className="text-gray-600 hover:text-[#0d4c3e] font-semibold">
+//                 Cancel
+//               </button>
+//               <button
+//                 onClick={handleResetPassword}
+//                 className="bg-[#0d4c3e] text-white px-4 py-2 rounded-xl hover:bg-[#093b30] transition"
+//               >
+//                 Send Reset Link
+//               </button>
+//             </div>
+//           </motion.div>
+//         </motion.div>
+//       )}
+//     </div>
+//   );
+// }
+// 'use client';
+
+// import { useEffect, useState, Suspense } from 'react';
+// import Image from 'next/image';
+// import Link from 'next/link';
+// import { useRouter } from 'next/navigation';
+// import Confetti from 'react-confetti';
+// import { Canvas } from '@react-three/fiber';
+// import { OrbitControls, useGLTF } from '@react-three/drei';
+// import { motion } from 'framer-motion';
+
+// interface RegisterResponse {
+//   message?: string;
+// }
+
+// function Model({ url }: { url: string }) {
+//   const { scene } = useGLTF(url);
+//   return <primitive object={scene} scale={1.5} />;
+// }
+// useGLTF.preload('/room.glb');
+
+// export default function SignUpPage() {
+//   const router = useRouter();
+//   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState('');
+//   const [success, setSuccess] = useState('');
+//   const [showConfetti, setShowConfetti] = useState(false);
+//   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+//   const [showModal, setShowModal] = useState(false);
+//   const [resetEmail, setResetEmail] = useState('');
+//   const [resetMsg, setResetMsg] = useState('');
+
+//   useEffect(() => {
+//     const updateSize = () => {
+//       setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+//     };
+//     updateSize();
+//     window.addEventListener('resize', updateSize);
+//     return () => window.removeEventListener('resize', updateSize);
+//   }, []);
+
+//   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     setFormData({ ...formData, [e.target.id]: e.target.value });
+//   };
+
+//   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+//     e.preventDefault();
+//     setError('');
+//     setSuccess('');
+
+//     if (!formData.name || !formData.email || !formData.password) {
+//       setError('Please fill in all fields.');
+//       return;
+//     }
+
+//     if (formData.password.length < 6) {
+//       setError('Password must be at least 6 characters.');
+//       return;
+//     }
+
+//     setLoading(true);
+//     try {
+//       const res = await fetch('http://13.48.25.101:8000/api/auth/register', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({
+//           Name: formData.name,
+//           Email: formData.email,
+//           Password: formData.password,
+//         }),
+//       });
+
+//       const data: RegisterResponse = await res.json();
+//       if (!res.ok) throw new Error(data.message || 'Signup failed');
+
+//       setSuccess('Account created successfully! Redirecting to login...');
+//       setFormData({ name: '', email: '', password: '' });
+//       setShowConfetti(true);
+//       setTimeout(() => router.push('/login'), 3000);
+//     } catch (err) {
+//       const errorMessage = err instanceof Error ? err.message : 'Something went wrong.';
+//       setError(errorMessage);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleResetPassword = async () => {
+//     setResetMsg('');
+//     if (!resetEmail) {
+//       setResetMsg('Please enter your email.');
+//       return;
+//     }
+
+//     try {
+//       const res = await fetch('http://13.48.25.101:8000/api/auth/forgot-password', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({ email: resetEmail }),
+//       });
+
+//       const data = await res.json();
+//       if (!res.ok) throw new Error(data.message || 'Reset failed');
+//       setResetMsg('Password reset link sent to your email.');
+//       setResetEmail('');
+//     } catch (err) {
+//       const errorMsg = err instanceof Error ? err.message : 'Error sending reset link.';
+//       setResetMsg(errorMsg);
+//     }
+//   };
+
+//   return (
+//     <div className="relative min-h-screen flex items-center justify-center px-4 py-8 overflow-hidden bg-gradient-to-br from-[#e8f5f1] to-[#f2fcf8] animate-float">
+//       <Image
+//         src="/w1.svg"
+//         alt="Background"
+//         fill
+//         className="absolute inset-0 object-cover z-0 pointer-events-none"
+//         priority
+//       />
+
+//       {showConfetti && (
+//         <Confetti
+//           width={windowSize.width}
+//           height={windowSize.height}
+//           numberOfPieces={500}
+//           gravity={0.4}
+//           wind={0.01}
+//           recycle={false}
+//         />
+//       )}
+
+//       <motion.div
+//         initial={{ opacity: 0, y: 40 }}
+//         animate={{ opacity: 1, y: 0 }}
+//         transition={{ duration: 1, ease: 'easeOut' }}
+//         className="relative z-10 w-full max-w-5xl min-h-[500px] flex flex-col lg:flex-row rounded-[30px] bg-white/90 backdrop-blur-md shadow-[0_0_30px_rgba(0,0,0,0.15)] overflow-hidden animate-float"
+//       >
+//         <motion.div
+//           initial={{ opacity: 0, x: -30 }}
+//           animate={{ opacity: 1, x: 0 }}
+//           transition={{ delay: 0.3, duration: 1, ease: 'easeOut' }}
+//           className="w-full lg:w-1/2 px-6 sm:px-10 py-10 sm:py-14 bg-[#eef4f3]/80 flex flex-col justify-center"
+//         >
+//           <h2 className="text-4xl font-extrabold text-[#0d4c3e] mb-2 bg-gradient-to-r from-[#0d4c3e] to-[#1f6f5b] bg-clip-text text-transparent animate-shimmer">
+//             Sign Up
+//           </h2>
+//           <p className="text-sm text-gray-600 mb-8">Create your account to get started</p>
+
+//           <form className="space-y-5" onSubmit={handleSubmit}>
+//             {['name', 'email', 'password'].map((field) => (
+//               <input
+//                 key={field}
+//                 id={field}
+//                 type={field === 'password' ? 'password' : field === 'email' ? 'email' : 'text'}
+//                 placeholder={field[0].toUpperCase() + field.slice(1)}
+//                 value={(formData as any)[field]}
+//                 onChange={handleChange}
+//                 required
+//                 className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e] focus:shadow-glow transition-all duration-300"
+//               />
+//             ))}
+
+//             {loading && <p className="text-sm text-gray-600">Creating your account...</p>}
+//             {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+//             {success && <p className="text-green-600 text-sm text-center">{success}</p>}
+
+//             <motion.button
+//               whileHover={{ scale: 1.03 }}
+//               transition={{ duration: 0.4 }}
+//               type="submit"
+//               disabled={loading}
+//               className={`w-full py-3 rounded-xl font-semibold transition-all duration-500 ${
+//                 loading
+//                   ? 'bg-gray-400 cursor-not-allowed text-white'
+//                   : 'bg-[#0d4c3e] text-white hover:bg-[#093b30] shadow-[0_0_12px_#0d4c3e80] hover:shadow-[0_0_20px_#0d4c3eff]'
+//               }`}
+//             >
+//               {loading ? 'Signing up...' : 'Sign Up'}
+//             </motion.button>
+//           </form>
+
+//           <div className="text-sm text-gray-600 mt-6 flex flex-col sm:flex-row justify-between gap-3 sm:gap-0">
+//             <button onClick={() => setShowModal(true)} className="underline hover:text-[#0d4c3e] w-fit">
+//               Forgot my password
+//             </button>
+//             <Link href="/login" className="font-semibold underline hover:text-[#0d4c3e] w-fit">
+//               Already have an account? Login
+//             </Link>
+//           </div>
+//         </motion.div>
+
+//         <motion.div
+//           initial={{ opacity: 0, x: 30 }}
+//           animate={{ opacity: 1, x: 0 }}
+//           transition={{ delay: 0.3, duration: 1, ease: 'easeOut' }}
+//           className="hidden lg:block w-1/2 relative"
+//         >
+//           <div className="absolute inset-0">
+//             <Canvas camera={{ position: [0, 0, 5], fov: 50 }} style={{ background: '#f9f9f9' }}>
+//               <ambientLight intensity={0.7} />
+//               <directionalLight position={[5, 5, 5]} intensity={1} />
+//               <Suspense fallback={null}>
+//                 <Model url="/room.glb" />
+//               </Suspense>
+//               <OrbitControls
+//                 autoRotate
+//                 autoRotateSpeed={1}
+//                 enableZoom={false}
+//                 enablePan={false}
+//                 maxPolarAngle={Math.PI / 2}
+//                 minPolarAngle={Math.PI / 2.5}
+//                 maxAzimuthAngle={Math.PI / 2}
+//                 minAzimuthAngle={-Math.PI / 2}
+//               />
+//             </Canvas>
+//           </div>
+//         </motion.div>
+//       </motion.div>
+
+//       {showModal && (
+//         <motion.div
+//           initial={{ opacity: 0 }}
+//           animate={{ opacity: 1 }}
+//           className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4"
+//         >
+//           <motion.div
+//             initial={{ scale: 0.9, opacity: 0 }}
+//             animate={{ scale: 1, opacity: 1 }}
+//             transition={{ duration: 0.4, ease: 'easeOut' }}
+//             className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto"
+//           >
+//             <h3 className="text-xl font-semibold text-[#0d4c3e] mb-4">Reset Your Password</h3>
+//             <input
+//               type="email"
+//               placeholder="Enter your email"
+//               value={resetEmail}
+//               onChange={(e) => setResetEmail(e.target.value)}
+//               className="w-full mb-4 px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e]"
+//             />
+//             {resetMsg && (
+//               <p className={`text-sm mb-2 ${resetMsg.includes('sent') ? 'text-green-600' : 'text-red-500'}`}>
+//                 {resetMsg}
+//               </p>
+//             )}
+//             <div className="flex justify-end gap-3">
+//               <button onClick={() => setShowModal(false)} className="text-gray-600 hover:text-[#0d4c3e] font-semibold">
+//                 Cancel
+//               </button>
+//               <button
+//                 onClick={handleResetPassword}
+//                 className="bg-[#0d4c3e] text-white px-4 py-2 rounded-xl hover:bg-[#093b30] transition"
+//               >
+//                 Send Reset Link
+//               </button>
+//             </div>
+//           </motion.div>
+//         </motion.div>
+//       )}
+//     </div>
+//   );
+// }
+// 'use client';
+
+// import { useEffect, useState, Suspense } from 'react';
+// import Image from 'next/image';
+// import Link from 'next/link';
+// import { useRouter } from 'next/navigation';
+// import Confetti from 'react-confetti';
+// import { Canvas } from '@react-three/fiber';
+// import { OrbitControls, useGLTF } from '@react-three/drei';
+// import { motion } from 'framer-motion';
+
+// interface RegisterResponse {
+//   message?: string;
+// }
+
+// function Model({ url }: { url: string }) {
+//   const { scene } = useGLTF(url);
+//   return <primitive object={scene} scale={1.5} />;
+// }
+// useGLTF.preload('/room.glb');
+
+// export default function SignUpPage() {
+//   const router = useRouter();
+//   const [formData, setFormData] = useState({
+//     name: '',
+//     email: '',
+//     password: '',
+//   });
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState('');
+//   const [success, setSuccess] = useState('');
+//   const [showConfetti, setShowConfetti] = useState(false);
+//   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+//   const [showModal, setShowModal] = useState(false);
+//   const [resetEmail, setResetEmail] = useState('');
+//   const [resetMsg, setResetMsg] = useState('');
+
+//   useEffect(() => {
+//     const updateSize = () => {
+//       setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+//     };
+//     updateSize();
+//     window.addEventListener('resize', updateSize);
+//     return () => window.removeEventListener('resize', updateSize);
+//   }, []);
+
+//   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     setFormData({ ...formData, [e.target.id]: e.target.value });
+//   };
+
+//   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+//     e.preventDefault();
+//     setError('');
+//     setSuccess('');
+
+//     if (!formData.name || !formData.email || !formData.password) {
+//       setError('Please fill in all fields.');
+//       return;
+//     }
+
+//     if (formData.password.length < 6) {
+//       setError('Password must be at least 6 characters.');
+//       return;
+//     }
+
+//     setLoading(true);
+//     try {
+//       const res = await fetch('http://13.48.25.101:8000/api/auth/register', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({
+//           Name: formData.name,
+//           Email: formData.email,
+//           Password: formData.password,
+//         }),
+//       });
+
+//       const data: RegisterResponse = await res.json();
+//       if (!res.ok) throw new Error(data.message || 'Signup failed');
+
+//       setSuccess('Account created successfully! Redirecting to login...');
+//       setFormData({ name: '', email: '', password: '' });
+//       setShowConfetti(true);
+//       setTimeout(() => router.push('/login'), 3000);
+//     } catch (err) {
+//       const errorMessage = err instanceof Error ? err.message : 'Something went wrong.';
+//       setError(errorMessage);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleResetPassword = async () => {
+//     setResetMsg('');
+//     if (!resetEmail) {
+//       setResetMsg('Please enter your email.');
+//       return;
+//     }
+
+//     try {
+//       const res = await fetch('http://13.48.25.101:8000/api/auth/forgot-password', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({ email: resetEmail }),
+//       });
+
+//       const data = await res.json();
+//       if (!res.ok) throw new Error(data.message || 'Reset failed');
+//       setResetMsg('Password reset link sent to your email.');
+//       setResetEmail('');
+//     } catch (err) {
+//       const errorMsg = err instanceof Error ? err.message : 'Error sending reset link.';
+//       setResetMsg(errorMsg);
+//     }
+//   };
+
+//   return (
+//     <div className="relative min-h-screen flex items-center justify-center px-4 py-8 overflow-hidden bg-gradient-to-br from-[#e8f5f1] to-[#f2fcf8] animate-float">
+//       <Image
+//         src="/w1.svg"
+//         alt="Background"
+//         fill
+//         className="absolute inset-0 object-cover z-0 pointer-events-none"
+//         priority
+//       />
+
+//       {showConfetti && (
+//         <Confetti
+//           width={windowSize.width}
+//           height={windowSize.height}
+//           numberOfPieces={500}
+//           gravity={0.4}
+//           wind={0.01}
+//           recycle={false}
+//         />
+//       )}
+
+//       <motion.div
+//         initial={{ opacity: 0, y: 40 }}
+//         animate={{ opacity: 1, y: 0 }}
+//         transition={{ duration: 1, ease: 'easeOut' }}
+//         className="relative z-10 w-full max-w-5xl min-h-[500px] flex flex-col lg:flex-row rounded-[30px] bg-white/90 backdrop-blur-md shadow-[0_0_30px_rgba(0,0,0,0.15)] overflow-hidden animate-float"
+//       >
+//         <motion.div
+//           initial={{ opacity: 0, x: -30 }}
+//           animate={{ opacity: 1, x: 0 }}
+//           transition={{ delay: 0.3, duration: 1, ease: 'easeOut' }}
+//           className="w-full lg:w-1/2 px-6 sm:px-10 py-10 sm:py-14 bg-[#eef4f3]/80 flex flex-col justify-center"
+//         >
+//           <h2 className="text-4xl font-extrabold text-[#0d4c3e] mb-2 bg-gradient-to-r from-[#0d4c3e] to-[#1f6f5b] bg-clip-text text-transparent animate-shimmer">
+//             Sign Up
+//           </h2>
+//           <p className="text-sm text-gray-600 mb-8">Create your account to get started</p>
+
+//           <form className="space-y-5" onSubmit={handleSubmit}>
+//             {(['name', 'email', 'password'] as const).map((field) => (
+//               <input
+//                 key={field}
+//                 id={field}
+//                 type={field === 'password' ? 'password' : field === 'email' ? 'email' : 'text'}
+//                 placeholder={field[0].toUpperCase() + field.slice(1)}
+//                 value={formData[field]}
+//                 onChange={handleChange}
+//                 required
+//                 className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e] focus:shadow-glow transition-all duration-300"
+//               />
+//             ))}
+
+//             {loading && <p className="text-sm text-gray-600">Creating your account...</p>}
+//             {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+//             {success && <p className="text-green-600 text-sm text-center">{success}</p>}
+
+//             <motion.button
+//               whileHover={{ scale: 1.03 }}
+//               transition={{ duration: 0.4 }}
+//               type="submit"
+//               disabled={loading}
+//               className={`w-full py-3 rounded-xl font-semibold transition-all duration-500 ${
+//                 loading
+//                   ? 'bg-gray-400 cursor-not-allowed text-white'
+//                   : 'bg-[#0d4c3e] text-white hover:bg-[#093b30] shadow-[0_0_12px_#0d4c3e80] hover:shadow-[0_0_20px_#0d4c3eff]'
+//               }`}
+//             >
+//               {loading ? 'Signing up...' : 'Sign Up'}
+//             </motion.button>
+//           </form>
+
+//           <div className="text-sm text-gray-600 mt-6 flex flex-col sm:flex-row justify-between gap-3 sm:gap-0">
+//             <button onClick={() => setShowModal(true)} className="underline hover:text-[#0d4c3e] w-fit">
+//               Forgot my password
+//             </button>
+//             <Link href="/login" className="font-semibold underline hover:text-[#0d4c3e] w-fit">
+//               Already have an account? Login
+//             </Link>
+//           </div>
+//         </motion.div>
+
+//         <motion.div
+//           initial={{ opacity: 0, x: 30 }}
+//           animate={{ opacity: 1, x: 0 }}
+//           transition={{ delay: 0.3, duration: 1, ease: 'easeOut' }}
+//           className="hidden lg:block w-1/2 relative"
+//         >
+//           <div className="absolute inset-0">
+//             <Canvas camera={{ position: [0, 0, 5], fov: 50 }} style={{ background: '#f9f9f9' }}>
+//               <ambientLight intensity={0.7} />
+//               <directionalLight position={[5, 5, 5]} intensity={1} />
+//               <Suspense fallback={null}>
+//                 <Model url="/room.glb" />
+//               </Suspense>
+//               <OrbitControls
+//                 autoRotate
+//                 autoRotateSpeed={1}
+//                 enableZoom={false}
+//                 enablePan={false}
+//                 maxPolarAngle={Math.PI / 2}
+//                 minPolarAngle={Math.PI / 2.5}
+//                 maxAzimuthAngle={Math.PI / 2}
+//                 minAzimuthAngle={-Math.PI / 2}
+//               />
+//             </Canvas>
+//           </div>
+//         </motion.div>
+//       </motion.div>
+
+//       {showModal && (
+//         <motion.div
+//           initial={{ opacity: 0 }}
+//           animate={{ opacity: 1 }}
+//           className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4"
+//         >
+//           <motion.div
+//             initial={{ scale: 0.9, opacity: 0 }}
+//             animate={{ scale: 1, opacity: 1 }}
+//             transition={{ duration: 0.4, ease: 'easeOut' }}
+//             className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto"
+//           >
+//             <h3 className="text-xl font-semibold text-[#0d4c3e] mb-4">Reset Your Password</h3>
+//             <input
+//               type="email"
+//               placeholder="Enter your email"
+//               value={resetEmail}
+//               onChange={(e) => setResetEmail(e.target.value)}
+//               className="w-full mb-4 px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e]"
+//             />
+//             {resetMsg && (
+//               <p className={`text-sm mb-2 ${resetMsg.includes('sent') ? 'text-green-600' : 'text-red-500'}`}>
+//                 {resetMsg}
+//               </p>
+//             )}
+//             <div className="flex justify-end gap-3">
+//               <button onClick={() => setShowModal(false)} className="text-gray-600 hover:text-[#0d4c3e] font-semibold">
+//                 Cancel
+//               </button>
+//               <button
+//                 onClick={handleResetPassword}
+//                 className="bg-[#0d4c3e] text-white px-4 py-2 rounded-xl hover:bg-[#093b30] transition"
+//               >
+//                 Send Reset Link
+//               </button>
+//             </div>
+//           </motion.div>
+//         </motion.div>
+//       )}
+//     </div>
+//   );
+// }
 'use client';
 
 import { useEffect, useState, Suspense } from 'react';
@@ -4320,12 +5384,13 @@ import { useRouter } from 'next/navigation';
 import Confetti from 'react-confetti';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, useGLTF } from '@react-three/drei';
+import { motion } from 'framer-motion';
+import React from 'react'; // Required for typing
 
 interface RegisterResponse {
   message?: string;
 }
 
-// 3D Model Loader
 function Model({ url }: { url: string }) {
   const { scene } = useGLTF(url);
   return <primitive object={scene} scale={1.5} />;
@@ -4334,7 +5399,11 @@ useGLTF.preload('/room.glb');
 
 export default function SignUpPage() {
   const router = useRouter();
-  const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -4415,7 +5484,6 @@ export default function SignUpPage() {
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Reset failed');
-
       setResetMsg('Password reset link sent to your email.');
       setResetEmail('');
     } catch (err) {
@@ -4425,12 +5493,12 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center px-4 py-8 overflow-hidden">
+    <div className="relative min-h-screen flex items-center justify-center px-4 py-8 overflow-hidden bg-gradient-to-br from-[#e8f5f1] to-[#f2fcf8] animate-float">
       <Image
         src="/w1.svg"
         alt="Background"
         fill
-        className="absolute inset-0 object-cover z-0"
+        className="absolute inset-0 object-cover z-0 pointer-events-none"
         priority
       />
 
@@ -4438,78 +5506,79 @@ export default function SignUpPage() {
         <Confetti
           width={windowSize.width}
           height={windowSize.height}
-          numberOfPieces={800}
-          gravity={0.8}
+          numberOfPieces={500}
+          gravity={0.4}
           wind={0.01}
           recycle={false}
         />
       )}
 
-      <div className="relative z-10 w-full max-w-5xl min-h-[500px] flex flex-col lg:flex-row rounded-[30px] bg-white/90 backdrop-blur-sm overflow-hidden shadow-2xl">
-        {/* Form Section */}
-        <div className="w-full lg:w-1/2 px-6 sm:px-10 py-8 sm:py-12 bg-[#eef4f3]/80 flex flex-col justify-center">
-          <h2 className="text-2xl sm:text-3xl font-bold text-[#0d4c3e] mb-1">Sign Up</h2>
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, ease: 'easeOut' }}
+        className="relative z-10 w-full max-w-5xl min-h-[500px] flex flex-col lg:flex-row rounded-[30px] bg-white/90 backdrop-blur-md shadow-[0_0_30px_rgba(0,0,0,0.15)] overflow-hidden animate-float"
+      >
+        <motion.div
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3, duration: 1, ease: 'easeOut' }}
+          className="w-full lg:w-1/2 px-6 sm:px-10 py-10 sm:py-14 bg-[#eef4f3]/80 flex flex-col justify-center"
+        >
+          <h2 className="text-4xl font-extrabold text-[#0d4c3e] mb-2 bg-gradient-to-r from-[#0d4c3e] to-[#1f6f5b] bg-clip-text text-transparent animate-shimmer">
+            Sign Up
+          </h2>
           <p className="text-sm text-gray-600 mb-8">Create your account to get started</p>
 
           <form className="space-y-5" onSubmit={handleSubmit}>
-            <input
-              id="name"
-              type="text"
-              placeholder="Name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e]"
-            />
-            <input
-              id="email"
-              type="email"
-              placeholder="Email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e]"
-            />
-            <input
-              id="password"
-              type="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e]"
-            />
+            {(['name', 'email', 'password'] as const).map((field) => (
+              <input
+                key={field}
+                id={field}
+                type={field === 'password' ? 'password' : field === 'email' ? 'email' : 'text'}
+                placeholder={field[0].toUpperCase() + field.slice(1)}
+                value={formData[field]}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e] focus:shadow-glow transition-all duration-300"
+              />
+            ))}
 
             {loading && <p className="text-sm text-gray-600">Creating your account...</p>}
             {error && <p className="text-red-500 text-sm text-center">{error}</p>}
             {success && <p className="text-green-600 text-sm text-center">{success}</p>}
 
-            <button
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              transition={{ duration: 0.4 }}
               type="submit"
               disabled={loading}
-              className={`w-full text-white py-3 rounded-xl font-semibold transition-all duration-500 ${
+              className={`w-full py-3 rounded-xl font-semibold transition-all duration-500 ${
                 loading
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-[#0d4c3e] hover:bg-[#093b30] shadow-[0_0_12px_#0d4c3e80] hover:shadow-[0_0_20px_#0d4c3eff]'
+                  ? 'bg-gray-400 cursor-not-allowed text-white'
+                  : 'bg-[#0d4c3e] text-white hover:bg-[#093b30] shadow-[0_0_12px_#0d4c3e80] hover:shadow-[0_0_20px_#0d4c3eff]'
               }`}
             >
               {loading ? 'Signing up...' : 'Sign Up'}
-            </button>
+            </motion.button>
           </form>
 
           <div className="text-sm text-gray-600 mt-6 flex flex-col sm:flex-row justify-between gap-3 sm:gap-0">
             <button onClick={() => setShowModal(true)} className="underline hover:text-[#0d4c3e] w-fit">
               Forgot my password
             </button>
-
             <Link href="/login" className="font-semibold underline hover:text-[#0d4c3e] w-fit">
               Already have an account? Login
             </Link>
           </div>
-        </div>
+        </motion.div>
 
-        {/* 3D Viewer Section */}
-        <div className="hidden lg:block w-1/2 relative">
+        <motion.div
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3, duration: 1, ease: 'easeOut' }}
+          className="hidden lg:block w-1/2 relative"
+        >
           <div className="absolute inset-0">
             <Canvas camera={{ position: [0, 0, 5], fov: 50 }} style={{ background: '#f9f9f9' }}>
               <ambientLight intensity={0.7} />
@@ -4518,8 +5587,8 @@ export default function SignUpPage() {
                 <Model url="/room.glb" />
               </Suspense>
               <OrbitControls
-                autoRotate={false}
-                autoRotateSpeed={1.5}
+                autoRotate
+                autoRotateSpeed={1}
                 enableZoom={false}
                 enablePan={false}
                 maxPolarAngle={Math.PI / 2}
@@ -4529,13 +5598,21 @@ export default function SignUpPage() {
               />
             </Canvas>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
-      {/* Forgot Password Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-2 sm:px-4">
-          <div className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto animate-fade-in">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4"
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto"
+          >
             <h3 className="text-xl font-semibold text-[#0d4c3e] mb-4">Reset Your Password</h3>
             <input
               type="email"
@@ -4560,8 +5637,8 @@ export default function SignUpPage() {
                 Send Reset Link
               </button>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
     </div>
   );

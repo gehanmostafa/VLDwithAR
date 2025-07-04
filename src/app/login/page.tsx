@@ -3613,43 +3613,1782 @@
 //     </div>
 //   );
 // }
+// 'use client';
+
+// import Image from 'next/image';
+// import { useState, Suspense } from 'react';
+// import { useRouter } from 'next/navigation';
+// import { Canvas } from '@react-three/fiber';
+// import { OrbitControls, useGLTF } from '@react-three/drei';
+
+// interface User {
+//   Name?: string;
+//   Email?: string;
+// }
+
+// interface LoginResponse {
+//   token?: string;
+//   message?: string;
+//   user?: User;
+// }
+
+// // 3D Model Loader
+// function Model({ url }: { url: string }) {
+//   const { scene } = useGLTF(url);
+//   return <primitive object={scene} scale={1.5} />;
+// }
+
+// // ✅ Preload the model
+// useGLTF.preload('/room.glb');
+
+// export default function SignInPage() {
+//   const router = useRouter();
+//   const [form, setForm] = useState({ email: '', password: '' });
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState('');
+//   const [success, setSuccess] = useState('');
+
+//   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     setForm({ ...form, [e.target.id]: e.target.value });
+//   };
+
+//   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+//     e.preventDefault();
+//     setError('');
+//     setSuccess('');
+
+//     if (!form.email || !form.password) {
+//       setError('Email and password are required.');
+//       return;
+//     }
+
+//     setLoading(true);
+//     try {
+//       const res = await fetch('http://13.48.25.101:8000/api/auth/login', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({
+//           Email: form.email,
+//           Password: form.password,
+//         }),
+//       });
+
+//       const data: LoginResponse = await res.json();
+
+//       if (res.ok && data.token) {
+//         localStorage.setItem('token', data.token);
+//         localStorage.setItem('userName', data.user?.Name || 'User');
+
+//         // ✅ Notify navbar and redirect home
+//         window.dispatchEvent(new Event('storage'));
+//         router.push('/');
+
+//         setSuccess('Logged in successfully!');
+//       } else {
+//         setError(data.message || 'Login failed');
+//       }
+//     } catch (err) {
+//       const errorMessage =
+//         err instanceof Error ? err.message : 'Server unavailable, please try again shortly.';
+//       setError(errorMessage);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <div className="relative min-h-screen flex items-center justify-center px-4 py-8 overflow-hidden">
+//       {/* Background */}
+//       <Image
+//         src="/w1.svg"
+//         alt="Background"
+//         fill
+//         className="absolute inset-0 object-cover z-0"
+//         priority
+//       />
+
+//       {/* Card */}
+//       <div className="relative z-10 w-full max-w-5xl min-h-[500px] flex flex-col lg:flex-row rounded-[30px] bg-white/90 backdrop-blur-sm overflow-hidden shadow-2xl">
+//         {/* Form Side */}
+//         <div className="w-full lg:w-1/2 px-6 sm:px-10 py-8 sm:py-12 bg-[#eef4f3]/80 flex flex-col justify-center">
+//           <h2 className="text-2xl sm:text-3xl font-bold text-[#0d4c3e] mb-1">Login</h2>
+//           <p className="text-sm text-gray-600 mb-8">If you are already a member, easily log in</p>
+
+//           <form onSubmit={handleSubmit} className="space-y-5">
+//             <input
+//               id="email"
+//               type="email"
+//               placeholder="Email"
+//               value={form.email}
+//               onChange={handleChange}
+//               required
+//               className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e]"
+//             />
+//             <input
+//               id="password"
+//               type="password"
+//               placeholder="Password"
+//               value={form.password}
+//               onChange={handleChange}
+//               required
+//               className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e]"
+//             />
+
+//             {loading && <p className="text-sm text-gray-600">Connecting to server...</p>}
+//             {error && <p className="text-sm text-red-500">{error}</p>}
+//             {success && <p className="text-sm text-green-600">{success}</p>}
+
+//             <button
+//               type="submit"
+//               disabled={loading}
+//               className={`w-full text-white py-3 rounded-xl font-semibold transition-all duration-500
+//                 ${
+//                   loading
+//                     ? 'bg-gray-400 cursor-not-allowed'
+//                     : 'bg-[#0d4c3e] hover:bg-[#0b3d31] shadow-[0_0_15px_#0d4c3eaa] hover:shadow-[0_0_25px_#0d4c3eff]'
+//                 }`}
+//             >
+//               {loading ? 'Signing in...' : 'Login'}
+//             </button>
+
+//             <div className="relative flex items-center justify-center">
+//               <div className="absolute h-px bg-gray-300 w-full"></div>
+//               <span className="bg-[#eef4f3] px-3 text-sm text-gray-500">OR</span>
+//             </div>
+//           </form>
+
+//           <div className="text-sm text-gray-600 mt-4 flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-0">
+//             <span></span>
+//             <div>
+//               <span>Don&rsquo;t have an account?</span>
+//               <button
+//                 onClick={() => router.push('/signup')}
+//                 className="ml-1 font-semibold underline hover:text-[#0d4c3e]"
+//               >
+//                 Sign Up
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+
+//         {/* 3D Model Side */}
+//         <div className="hidden lg:block w-1/2 relative">
+//           <div className="absolute inset-0">
+//             <Canvas camera={{ position: [0, 0, 5], fov: 50 }} style={{ background: '#f9f9f9' }}>
+//               <ambientLight intensity={0.7} />
+//               <directionalLight position={[5, 5, 5]} intensity={1} />
+//               <Suspense fallback={null}>
+//                 <Model url="/room.glb" />
+//               </Suspense>
+//               <OrbitControls
+//                 autoRotate={false}
+//                 autoRotateSpeed={1.5}
+//                 enableZoom={false}
+//                 enablePan={false}
+//                 maxPolarAngle={Math.PI / 2}
+//                 minPolarAngle={Math.PI / 2.5}
+//                 maxAzimuthAngle={Math.PI / 2}
+//                 minAzimuthAngle={-Math.PI / 2}
+//               />
+//             </Canvas>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+// 'use client';
+
+// import Image from 'next/image';
+// import { useState, Suspense } from 'react';
+// import { useRouter } from 'next/navigation';
+// import { Canvas } from '@react-three/fiber';
+// import { OrbitControls, useGLTF } from '@react-three/drei';
+
+// interface User {
+//   Name?: string;
+//   Email?: string;
+// }
+
+// interface LoginResponse {
+//   token?: string;
+//   message?: string;
+//   user?: User;
+// }
+
+// function Model({ url }: { url: string }) {
+//   const { scene } = useGLTF(url);
+//   return <primitive object={scene} scale={1.5} />;
+// }
+
+// useGLTF.preload('/room.glb');
+
+// export default function SignInPage() {
+//   const router = useRouter();
+//   const [form, setForm] = useState({ email: '', password: '' });
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState('');
+//   const [success, setSuccess] = useState('');
+
+//   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     setForm({ ...form, [e.target.id]: e.target.value });
+//   };
+
+//   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+//     e.preventDefault();
+//     setError('');
+//     setSuccess('');
+
+//     if (!form.email || !form.password) {
+//       setError('Email and password are required.');
+//       return;
+//     }
+
+//     setLoading(true);
+//     try {
+//       const res = await fetch('http://13.48.25.101:8000/api/auth/login', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({
+//           Email: form.email,
+//           Password: form.password,
+//         }),
+//       });
+
+//       const data: LoginResponse = await res.json();
+
+//       if (res.ok && data.token) {
+//         localStorage.setItem('token', data.token);
+//         localStorage.setItem('userName', data.user?.Name || 'User');
+//         window.dispatchEvent(new Event('storage'));
+//         router.push('/');
+//         setSuccess('Logged in successfully!');
+//       } else {
+//         setError(data.message || 'Login failed');
+//       }
+//     } catch (err) {
+//       const errorMessage =
+//         err instanceof Error ? err.message : 'Server unavailable, please try again shortly.';
+//       setError(errorMessage);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <div className="relative min-h-screen flex items-center justify-center px-4 py-8 overflow-hidden">
+//       <Image
+//         src="/w1.svg"
+//         alt="Background"
+//         fill
+//         className="absolute inset-0 object-cover z-0"
+//         priority
+//       />
+
+//       <div className="relative z-10 w-full max-w-5xl min-h-[500px] flex flex-col lg:flex-row rounded-[30px] bg-white/90 backdrop-blur-sm overflow-hidden shadow-2xl">
+//         <div className="w-full lg:w-1/2 px-6 sm:px-10 py-8 sm:py-12 bg-[#eef4f3]/80 flex flex-col justify-center animate-fade-in">
+//           <h2 className="text-2xl sm:text-3xl font-bold text-[#0d4c3e] mb-1 animate-shimmer">Login</h2>
+//           <p className="text-sm text-gray-600 mb-8">If you are already a member, easily log in</p>
+
+//           <form onSubmit={handleSubmit} className="space-y-5">
+//             <input
+//               id="email"
+//               type="email"
+//               placeholder="Email"
+//               value={form.email}
+//               onChange={handleChange}
+//               required
+//               className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e]"
+//             />
+//             <input
+//               id="password"
+//               type="password"
+//               placeholder="Password"
+//               value={form.password}
+//               onChange={handleChange}
+//               required
+//               className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e]"
+//             />
+
+//             {loading && <p className="text-sm text-gray-600">Connecting to server...</p>}
+//             {error && <p className="text-sm text-red-500">{error}</p>}
+//             {success && <p className="text-sm text-green-600">{success}</p>}
+
+//             <button
+//               type="submit"
+//               disabled={loading}
+//               className={`w-full text-white py-3 rounded-xl font-semibold transition-all duration-500 ${
+//                 loading
+//                   ? 'bg-gray-400 cursor-not-allowed'
+//                   : 'bg-[#0d4c3e] hover:bg-[#0b3d31] shadow-[0_0_15px_#0d4c3eaa] hover:shadow-[0_0_25px_#0d4c3eff]'
+//               }`}
+//             >
+//               {loading ? 'Signing in...' : 'Login'}
+//             </button>
+
+//             <div className="relative flex items-center justify-center">
+//               <div className="absolute h-px bg-gray-300 w-full"></div>
+//               <span className="bg-[#eef4f3] px-3 text-sm text-gray-500">OR</span>
+//             </div>
+//           </form>
+
+//           <div className="text-sm text-gray-600 mt-4 flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-0">
+//             <span></span>
+//             <div>
+//               <span>Don’t have an account?</span>
+//               <button
+//                 onClick={() => router.push('/signup')}
+//                 className="ml-1 font-semibold underline hover:text-[#0d4c3e]"
+//               >
+//                 Sign Up
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+
+//         <div className="hidden lg:block w-1/2 relative">
+//           <div className="absolute inset-0">
+//             <Canvas camera={{ position: [0, 0, 5], fov: 50 }} style={{ background: '#f9f9f9' }}>
+//               <ambientLight intensity={0.7} />
+//               <directionalLight position={[5, 5, 5]} intensity={1} />
+//               <Suspense fallback={null}>
+//                 <Model url="/room.glb" />
+//               </Suspense>
+//               <OrbitControls
+//                 autoRotate={false}
+//                 autoRotateSpeed={1.5}
+//                 enableZoom={false}
+//                 enablePan={false}
+//                 maxPolarAngle={Math.PI / 2}
+//                 minPolarAngle={Math.PI / 2.5}
+//                 maxAzimuthAngle={Math.PI / 2}
+//                 minAzimuthAngle={-Math.PI / 2}
+//               />
+//             </Canvas>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+// 'use client';
+
+// import Image from 'next/image';
+// import { useState, Suspense } from 'react';
+// import { useRouter } from 'next/navigation';
+// import { Canvas } from '@react-three/fiber';
+// import { OrbitControls, useGLTF } from '@react-three/drei';
+
+// interface User {
+//   Name?: string;
+//   Email?: string;
+// }
+
+// interface LoginResponse {
+//   token?: string;
+//   message?: string;
+//   user?: User;
+// }
+
+// function Model({ url }: { url: string }) {
+//   const { scene } = useGLTF(url);
+//   return <primitive object={scene} scale={1.5} />;
+// }
+
+// useGLTF.preload('/room.glb');
+
+// export default function SignInPage() {
+//   const router = useRouter();
+//   const [form, setForm] = useState({ email: '', password: '' });
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState('');
+//   const [success, setSuccess] = useState('');
+
+//   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     setForm({ ...form, [e.target.id]: e.target.value });
+//   };
+
+//   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+//     e.preventDefault();
+//     setError('');
+//     setSuccess('');
+
+//     if (!form.email || !form.password) {
+//       setError('Email and password are required.');
+//       return;
+//     }
+
+//     setLoading(true);
+//     try {
+//       const res = await fetch('http://13.48.25.101:8000/api/auth/login', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({
+//           Email: form.email,
+//           Password: form.password,
+//         }),
+//       });
+
+//       const data: LoginResponse = await res.json();
+
+//       if (res.ok && data.token) {
+//         localStorage.setItem('token', data.token);
+//         localStorage.setItem('userName', data.user?.Name || 'User');
+//         window.dispatchEvent(new Event('storage'));
+//         router.push('/');
+//         setSuccess('Logged in successfully!');
+//       } else {
+//         setError(data.message || 'Login failed');
+//       }
+//     } catch (err) {
+//       const errorMessage =
+//         err instanceof Error ? err.message : 'Server unavailable, please try again shortly.';
+//       setError(errorMessage);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <div className="relative min-h-screen flex items-center justify-center px-4 py-8 overflow-hidden">
+//       <Image
+//         src="/w1.svg"
+//         alt="Background"
+//         fill
+//         className="absolute inset-0 object-cover z-0"
+//         priority
+//       />
+
+//       <div className="relative z-10 w-full max-w-5xl min-h-[500px] flex flex-col lg:flex-row rounded-[30px] bg-white/90 backdrop-blur-sm overflow-hidden shadow-2xl">
+//         <div className="w-full lg:w-1/2 px-6 sm:px-10 py-8 sm:py-12 bg-[#eef4f3]/80 flex flex-col justify-center animate-fade-in">
+//           <h2 className="text-2xl sm:text-3xl font-bold text-[#0d4c3e] mb-1 animate-shimmer">Login</h2>
+//           <p className="text-sm text-gray-600 mb-8">If you are already a member, easily log in</p>
+
+//           <form onSubmit={handleSubmit} className="space-y-5">
+//             <input
+//               id="email"
+//               type="email"
+//               placeholder="Email"
+//               value={form.email}
+//               onChange={handleChange}
+//               required
+//               className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e]"
+//             />
+//             <input
+//               id="password"
+//               type="password"
+//               placeholder="Password"
+//               value={form.password}
+//               onChange={handleChange}
+//               required
+//               className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e]"
+//             />
+
+//             {loading && <p className="text-sm text-gray-600">Connecting to server...</p>}
+//             {error && <p className="text-sm text-red-500">{error}</p>}
+//             {success && <p className="text-sm text-green-600">{success}</p>}
+
+//             <button
+//               type="submit"
+//               disabled={loading}
+//               className={`w-full text-white py-3 rounded-xl font-semibold transition-all duration-500 ${
+//                 loading
+//                   ? 'bg-gray-400 cursor-not-allowed'
+//                   : 'bg-[#0d4c3e] hover:bg-[#0b3d31] shadow-[0_0_15px_#0d4c3eaa] hover:shadow-[0_0_25px_#0d4c3eff]'
+//               }`}
+//             >
+//               {loading ? 'Signing in...' : 'Login'}
+//             </button>
+
+//             <div className="relative flex items-center justify-center">
+//               <div className="absolute h-px bg-gray-300 w-full"></div>
+//               <span className="bg-[#eef4f3] px-3 text-sm text-gray-500">OR</span>
+//             </div>
+//           </form>
+
+//           <div className="text-sm text-gray-600 mt-4 flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-0">
+//             <span></span>
+//             <div>
+//               <span>Don’t have an account?</span>
+//               <button
+//                 onClick={() => router.push('/signup')}
+//                 className="ml-1 font-semibold underline hover:text-[#0d4c3e]"
+//               >
+//                 Sign Up
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+
+//         <div className="hidden lg:block w-1/2 relative">
+//           <div className="absolute inset-0">
+//             <Canvas camera={{ position: [0, 0, 5], fov: 50 }} style={{ background: '#f9f9f9' }}>
+//               <ambientLight intensity={0.7} />
+//               <directionalLight position={[5, 5, 5]} intensity={1} />
+//               <Suspense fallback={null}>
+//                 <Model url="/room.glb" />
+//               </Suspense>
+//               <OrbitControls
+//                 autoRotate={false}
+//                 autoRotateSpeed={1.5}
+//                 enableZoom={false}
+//                 enablePan={false}
+//                 maxPolarAngle={Math.PI / 2}
+//                 minPolarAngle={Math.PI / 2.5}
+//                 maxAzimuthAngle={Math.PI / 2}
+//                 minAzimuthAngle={-Math.PI / 2}
+//               />
+//             </Canvas>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+// 'use client';
+
+// import { useEffect, useState, Suspense } from 'react';
+// import Image from 'next/image';
+// import Link from 'next/link';
+// import { useRouter } from 'next/navigation';
+// import Confetti from 'react-confetti';
+// import { Canvas } from '@react-three/fiber';
+// import { OrbitControls, useGLTF } from '@react-three/drei';
+// import { motion } from 'framer-motion';
+
+// interface LoginResponse {
+//   message?: string;
+//   token?: string;
+// }
+
+// function Model({ url }: { url: string }) {
+//   const { scene } = useGLTF(url);
+//   return <primitive object={scene} scale={1.5} />;
+// }
+// useGLTF.preload('/room.glb');
+
+// export default function LoginPage() {
+//   const router = useRouter();
+//   const [formData, setFormData] = useState({ email: '', password: '' });
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState('');
+//   const [success, setSuccess] = useState('');
+//   const [showConfetti, setShowConfetti] = useState(false);
+//   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+
+//   useEffect(() => {
+//     const updateSize = () => {
+//       setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+//     };
+//     updateSize();
+//     window.addEventListener('resize', updateSize);
+//     return () => window.removeEventListener('resize', updateSize);
+//   }, []);
+
+//   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     setFormData({ ...formData, [e.target.id]: e.target.value });
+//   };
+
+//   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+//     e.preventDefault();
+//     setError('');
+//     setSuccess('');
+
+//     if (!formData.email || !formData.password) {
+//       setError('Please fill in all fields.');
+//       return;
+//     }
+
+//     setLoading(true);
+//     try {
+//       const res = await fetch('http://13.48.25.101:8000/api/auth/login', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({
+//           Email: formData.email,
+//           Password: formData.password,
+//         }),
+//       });
+
+//       const data: LoginResponse = await res.json();
+//       if (!res.ok) throw new Error(data.message || 'Login failed');
+
+//       setSuccess('Login successful! Redirecting...');
+//       setShowConfetti(true);
+//       setTimeout(() => router.push('/'), 3000);
+//     } catch (err) {
+//       const errorMessage = err instanceof Error ? err.message : 'Something went wrong.';
+//       setError(errorMessage);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <div className="relative min-h-screen flex items-center justify-center px-4 py-8 overflow-hidden bg-gradient-to-br from-[#e8f5f1] to-[#f2fcf8] animate-float">
+//       <Image
+//         src="/w1.svg"
+//         alt="Background"
+//         fill
+//         className="absolute inset-0 object-cover z-0 pointer-events-none"
+//         priority
+//       />
+
+//       {showConfetti && (
+//         <Confetti
+//           width={windowSize.width}
+//           height={windowSize.height}
+//           numberOfPieces={400}
+//           gravity={0.3}
+//           wind={0.01}
+//           recycle={false}
+//         />
+//       )}
+
+//       <motion.div
+//         initial={{ opacity: 0, y: 40 }}
+//         animate={{ opacity: 1, y: 0 }}
+//         transition={{ duration: 1, ease: 'easeOut' }}
+//         className="relative z-10 w-full max-w-5xl min-h-[500px] flex flex-col lg:flex-row rounded-[30px] bg-white/90 backdrop-blur-md shadow-[0_0_30px_rgba(0,0,0,0.15)] overflow-hidden animate-float"
+//       >
+//         {/* Left Form Side */}
+//         <motion.div
+//           initial={{ opacity: 0, x: -30 }}
+//           animate={{ opacity: 1, x: 0 }}
+//           transition={{ delay: 0.3, duration: 1, ease: 'easeOut' }}
+//           className="w-full lg:w-1/2 px-6 sm:px-10 py-10 sm:py-14 bg-[#eef4f3]/80 flex flex-col justify-center"
+//         >
+//           <h2 className="text-4xl font-extrabold text-[#0d4c3e] mb-2 bg-gradient-to-r from-[#0d4c3e] to-[#1f6f5b] bg-clip-text text-transparent animate-shimmer">
+//             Login
+//           </h2>
+//           <p className="text-sm text-gray-600 mb-8">Welcome back! Log into your account.</p>
+
+//           <form className="space-y-5" onSubmit={handleSubmit}>
+//             {['email', 'password'].map((field) => (
+//               <input
+//                 key={field}
+//                 id={field}
+//                 type={field === 'password' ? 'password' : 'email'}
+//                 placeholder={field[0].toUpperCase() + field.slice(1)}
+//                 value={(formData as any)[field]}
+//                 onChange={handleChange}
+//                 required
+//                 className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e] focus:shadow-glow transition-all duration-300"
+//               />
+//             ))}
+
+//             {loading && <p className="text-sm text-gray-600">Logging in...</p>}
+//             {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+//             {success && <p className="text-green-600 text-sm text-center">{success}</p>}
+
+//             <motion.button
+//               whileHover={{ scale: 1.03 }}
+//               transition={{ duration: 0.4 }}
+//               type="submit"
+//               disabled={loading}
+//               className={`w-full py-3 rounded-xl font-semibold transition-all duration-500 ${
+//                 loading
+//                   ? 'bg-gray-400 cursor-not-allowed text-white'
+//                   : 'bg-[#0d4c3e] text-white hover:bg-[#093b30] shadow-[0_0_12px_#0d4c3e80] hover:shadow-[0_0_20px_#0d4c3eff]'
+//               }`}
+//             >
+//               {loading ? 'Logging in...' : 'Login'}
+//             </motion.button>
+//           </form>
+
+//           <div className="text-sm text-gray-600 mt-6 flex flex-col sm:flex-row justify-between gap-3 sm:gap-0">
+//             <Link href="/reset-password" className="underline hover:text-[#0d4c3e] w-fit">
+//               Forgot Password?
+//             </Link>
+//             <Link href="/signup" className="font-semibold underline hover:text-[#0d4c3e] w-fit">
+//               Don't have an account? Sign Up
+//             </Link>
+//           </div>
+//         </motion.div>
+
+//         {/* Right 3D Model Side */}
+//         <motion.div
+//           initial={{ opacity: 0, x: 30 }}
+//           animate={{ opacity: 1, x: 0 }}
+//           transition={{ delay: 0.3, duration: 1, ease: 'easeOut' }}
+//           className="hidden lg:block w-1/2 relative"
+//         >
+//           <div className="absolute inset-0">
+//             <Canvas camera={{ position: [0, 0, 5], fov: 50 }} style={{ background: '#f9f9f9' }}>
+//               <ambientLight intensity={0.7} />
+//               <directionalLight position={[5, 5, 5]} intensity={1} />
+//               <Suspense fallback={null}>
+//                 <Model url="/room.glb" />
+//               </Suspense>
+//               <OrbitControls
+//                 autoRotate
+//                 autoRotateSpeed={1}
+//                 enableZoom={false}
+//                 enablePan={false}
+//                 maxPolarAngle={Math.PI / 2}
+//                 minPolarAngle={Math.PI / 2.5}
+//                 maxAzimuthAngle={Math.PI / 2}
+//                 minAzimuthAngle={-Math.PI / 2}
+//               />
+//             </Canvas>
+//           </div>
+//         </motion.div>
+//       </motion.div>
+//     </div>
+//   );
+// }
+// 'use client';
+
+// import { useEffect, useState, Suspense } from 'react';
+// import Image from 'next/image';
+// import Link from 'next/link';
+// import { useRouter } from 'next/navigation';
+// import Confetti from 'react-confetti';
+// import { Canvas } from '@react-three/fiber';
+// import { OrbitControls, useGLTF } from '@react-three/drei';
+// import { motion } from 'framer-motion';
+
+// interface LoginResponse {
+//   message?: string;
+//   token?: string;
+// }
+
+// function Model({ url }: { url: string }) {
+//   const { scene } = useGLTF(url);
+//   return <primitive object={scene} scale={1.5} />;
+// }
+// useGLTF.preload('/room.glb');
+
+// export default function LoginPage() {
+//   const router = useRouter();
+//   const [formData, setFormData] = useState({ email: '', password: '' });
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState('');
+//   const [success, setSuccess] = useState('');
+//   const [showConfetti, setShowConfetti] = useState(false);
+//   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+
+//   useEffect(() => {
+//     const updateSize = () => {
+//       setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+//     };
+//     updateSize();
+//     window.addEventListener('resize', updateSize);
+//     return () => window.removeEventListener('resize', updateSize);
+//   }, []);
+
+//   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     setFormData({ ...formData, [e.target.id]: e.target.value });
+//   };
+
+//   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+//     e.preventDefault();
+//     setError('');
+//     setSuccess('');
+
+//     if (!formData.email || !formData.password) {
+//       setError('Please fill in all fields.');
+//       return;
+//     }
+
+//     setLoading(true);
+//     try {
+//       const res = await fetch('http://13.48.25.101:8000/api/auth/login', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({
+//           Email: formData.email,
+//           Password: formData.password,
+//         }),
+//       });
+
+//       const data: LoginResponse = await res.json();
+//       if (!res.ok) throw new Error(data.message || 'Login failed');
+
+//       setSuccess('Login successful! Redirecting...');
+//       setShowConfetti(true);
+//       setTimeout(() => router.push('/'), 3000);
+//     } catch (err) {
+//       const errorMessage = err instanceof Error ? err.message : 'Something went wrong.';
+//       setError(errorMessage);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <div className="relative min-h-screen flex items-center justify-center px-4 py-8 overflow-hidden bg-gradient-to-br from-[#e8f5f1] to-[#f2fcf8] animate-float">
+//       <Image
+//         src="/w1.svg"
+//         alt="Background"
+//         fill
+//         className="absolute inset-0 object-cover z-0 pointer-events-none"
+//         priority
+//       />
+
+//       {showConfetti && (
+//         <Confetti
+//           width={windowSize.width}
+//           height={windowSize.height}
+//           numberOfPieces={400}
+//           gravity={0.3}
+//           wind={0.01}
+//           recycle={false}
+//         />
+//       )}
+
+//       <motion.div
+//         initial={{ opacity: 0, y: 40 }}
+//         animate={{ opacity: 1, y: 0 }}
+//         transition={{ duration: 1, ease: 'easeOut' }}
+//         className="relative z-10 w-full max-w-5xl min-h-[500px] flex flex-col lg:flex-row rounded-[30px] bg-white/90 backdrop-blur-md shadow-[0_0_30px_rgba(0,0,0,0.15)] overflow-hidden animate-float"
+//       >
+//         {/* Left Form Side */}
+//         <motion.div
+//           initial={{ opacity: 0, x: -30 }}
+//           animate={{ opacity: 1, x: 0 }}
+//           transition={{ delay: 0.3, duration: 1, ease: 'easeOut' }}
+//           className="w-full lg:w-1/2 px-6 sm:px-10 py-10 sm:py-14 bg-[#eef4f3]/80 flex flex-col justify-center"
+//         >
+//           <h2 className="text-4xl font-extrabold text-[#0d4c3e] mb-2 bg-gradient-to-r from-[#0d4c3e] to-[#1f6f5b] bg-clip-text text-transparent animate-shimmer">
+//             Login
+//           </h2>
+//           <p className="text-sm text-gray-600 mb-8">Welcome back! Log into your account.</p>
+
+//           <form className="space-y-5" onSubmit={handleSubmit}>
+//             {(['email', 'password'] as const).map((field) => (
+//               <input
+//                 key={field}
+//                 id={field}
+//                 type={field === 'password' ? 'password' : 'email'}
+//                 placeholder={field[0].toUpperCase() + field.slice(1)}
+//                 value={formData[field]}
+//                 onChange={handleChange}
+//                 required
+//                 className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e] focus:shadow-glow transition-all duration-300"
+//               />
+//             ))}
+
+//             {loading && <p className="text-sm text-gray-600">Logging in...</p>}
+//             {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+//             {success && <p className="text-green-600 text-sm text-center">{success}</p>}
+
+//             <motion.button
+//               whileHover={{ scale: 1.03 }}
+//               transition={{ duration: 0.4 }}
+//               type="submit"
+//               disabled={loading}
+//               className={`w-full py-3 rounded-xl font-semibold transition-all duration-500 ${
+//                 loading
+//                   ? 'bg-gray-400 cursor-not-allowed text-white'
+//                   : 'bg-[#0d4c3e] text-white hover:bg-[#093b30] shadow-[0_0_12px_#0d4c3e80] hover:shadow-[0_0_20px_#0d4c3eff]'
+//               }`}
+//             >
+//               {loading ? 'Logging in...' : 'Login'}
+//             </motion.button>
+//           </form>
+
+//           <div className="text-sm text-gray-600 mt-6 flex flex-col sm:flex-row justify-between gap-3 sm:gap-0">
+//             <Link href="/reset-password" className="underline hover:text-[#0d4c3e] w-fit">
+//               Forgot Password?
+//             </Link>
+//             <Link href="/signup" className="font-semibold underline hover:text-[#0d4c3e] w-fit">
+//               Don't have an account? Sign Up
+//             </Link>
+//           </div>
+//         </motion.div>
+
+//         {/* Right 3D Model Side */}
+//         <motion.div
+//           initial={{ opacity: 0, x: 30 }}
+//           animate={{ opacity: 1, x: 0 }}
+//           transition={{ delay: 0.3, duration: 1, ease: 'easeOut' }}
+//           className="hidden lg:block w-1/2 relative"
+//         >
+//           <div className="absolute inset-0">
+//             <Canvas camera={{ position: [0, 0, 5], fov: 50 }} style={{ background: '#f9f9f9' }}>
+//               <ambientLight intensity={0.7} />
+//               <directionalLight position={[5, 5, 5]} intensity={1} />
+//               <Suspense fallback={null}>
+//                 <Model url="/room.glb" />
+//               </Suspense>
+//               <OrbitControls
+//                 autoRotate
+//                 autoRotateSpeed={1}
+//                 enableZoom={false}
+//                 enablePan={false}
+//                 maxPolarAngle={Math.PI / 2}
+//                 minPolarAngle={Math.PI / 2.5}
+//                 maxAzimuthAngle={Math.PI / 2}
+//                 minAzimuthAngle={-Math.PI / 2}
+//               />
+//             </Canvas>
+//           </div>
+//         </motion.div>
+//       </motion.div>
+//     </div>
+//   );
+// }
+// 'use client';
+
+// import { useEffect, useState, Suspense } from 'react';
+// import Image from 'next/image';
+// import Link from 'next/link';
+// import { useRouter } from 'next/navigation';
+// import Confetti from 'react-confetti';
+// import { Canvas } from '@react-three/fiber';
+// import { OrbitControls, useGLTF } from '@react-three/drei';
+// import { motion } from 'framer-motion';
+
+// interface LoginResponse {
+//   message?: string;
+//   token?: string;
+// }
+
+// function Model({ url }: { url: string }) {
+//   const { scene } = useGLTF(url);
+//   return <primitive object={scene} scale={1.5} />;
+// }
+// useGLTF.preload('/room.glb');
+
+// export default function LoginPage() {
+//   const router = useRouter();
+//   const [formData, setFormData] = useState({ email: '', password: '' });
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState('');
+//   const [success, setSuccess] = useState('');
+//   const [showConfetti, setShowConfetti] = useState(false);
+//   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+
+//   useEffect(() => {
+//     const updateSize = () => {
+//       setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+//     };
+//     updateSize();
+//     window.addEventListener('resize', updateSize);
+//     return () => window.removeEventListener('resize', updateSize);
+//   }, []);
+
+//   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     setFormData({ ...formData, [e.target.id]: e.target.value });
+//   };
+
+//   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+//     e.preventDefault();
+//     setError('');
+//     setSuccess('');
+
+//     if (!formData.email || !formData.password) {
+//       setError('Please fill in all fields.');
+//       return;
+//     }
+
+//     setLoading(true);
+//     try {
+//       const res = await fetch('http://13.48.25.101:8000/api/auth/login', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({
+//           Email: formData.email,
+//           Password: formData.password,
+//         }),
+//       });
+
+//       const data: LoginResponse = await res.json();
+//       if (!res.ok) throw new Error(data.message || 'Login failed');
+
+//       // ✅ Store the token in localStorage so Navbar knows you're logged in
+//       localStorage.setItem('token', data.token || '');
+
+//       setSuccess('Login successful! Redirecting...');
+//       setShowConfetti(true);
+//       setTimeout(() => router.push('/'), 3000);
+//     } catch (err) {
+//       const errorMessage = err instanceof Error ? err.message : 'Something went wrong.';
+//       setError(errorMessage);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <div className="relative min-h-screen flex items-center justify-center px-4 py-8 overflow-hidden bg-gradient-to-br from-[#e8f5f1] to-[#f2fcf8] animate-float">
+//       <Image
+//         src="/w1.svg"
+//         alt="Background"
+//         fill
+//         className="absolute inset-0 object-cover z-0 pointer-events-none"
+//         priority
+//       />
+
+//       {showConfetti && (
+//         <Confetti
+//           width={windowSize.width}
+//           height={windowSize.height}
+//           numberOfPieces={400}
+//           gravity={0.3}
+//           wind={0.01}
+//           recycle={false}
+//         />
+//       )}
+
+//       <motion.div
+//         initial={{ opacity: 0, y: 40 }}
+//         animate={{ opacity: 1, y: 0 }}
+//         transition={{ duration: 1, ease: 'easeOut' }}
+//         className="relative z-10 w-full max-w-5xl min-h-[500px] flex flex-col lg:flex-row rounded-[30px] bg-white/90 backdrop-blur-md shadow-[0_0_30px_rgba(0,0,0,0.15)] overflow-hidden animate-float"
+//       >
+//         {/* Left Form Side */}
+//         <motion.div
+//           initial={{ opacity: 0, x: -30 }}
+//           animate={{ opacity: 1, x: 0 }}
+//           transition={{ delay: 0.3, duration: 1, ease: 'easeOut' }}
+//           className="w-full lg:w-1/2 px-6 sm:px-10 py-10 sm:py-14 bg-[#eef4f3]/80 flex flex-col justify-center"
+//         >
+//           <h2 className="text-4xl font-extrabold text-[#0d4c3e] mb-2 bg-gradient-to-r from-[#0d4c3e] to-[#1f6f5b] bg-clip-text text-transparent animate-shimmer">
+//             Login
+//           </h2>
+//           <p className="text-sm text-gray-600 mb-8">Welcome back! Log into your account.</p>
+
+//           <form className="space-y-5" onSubmit={handleSubmit}>
+//             {(['email', 'password'] as const).map((field) => (
+//               <input
+//                 key={field}
+//                 id={field}
+//                 type={field === 'password' ? 'password' : 'email'}
+//                 placeholder={field[0].toUpperCase() + field.slice(1)}
+//                 value={formData[field]}
+//                 onChange={handleChange}
+//                 required
+//                 className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e] focus:shadow-glow transition-all duration-300"
+//               />
+//             ))}
+
+//             {loading && <p className="text-sm text-gray-600">Logging in...</p>}
+//             {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+//             {success && <p className="text-green-600 text-sm text-center">{success}</p>}
+
+//             <motion.button
+//               whileHover={{ scale: 1.03 }}
+//               transition={{ duration: 0.4 }}
+//               type="submit"
+//               disabled={loading}
+//               className={`w-full py-3 rounded-xl font-semibold transition-all duration-500 ${
+//                 loading
+//                   ? 'bg-gray-400 cursor-not-allowed text-white'
+//                   : 'bg-[#0d4c3e] text-white hover:bg-[#093b30] shadow-[0_0_12px_#0d4c3e80] hover:shadow-[0_0_20px_#0d4c3eff]'
+//               }`}
+//             >
+//               {loading ? 'Logging in...' : 'Login'}
+//             </motion.button>
+//           </form>
+
+//           <div className="text-sm text-gray-600 mt-6 flex flex-col sm:flex-row justify-between gap-3 sm:gap-0">
+//             {/* <Link href="/reset-password" className="underline hover:text-[#0d4c3e] w-fit">
+//               Forgot Password?
+//             </Link> */}
+//             <Link href="/signup" className="font-semibold underline hover:text-[#0d4c3e] w-fit">
+//               Don't have an account? Sign Up
+//             </Link>
+//           </div>
+//         </motion.div>
+
+//         {/* Right 3D Model Side */}
+//         <motion.div
+//           initial={{ opacity: 0, x: 30 }}
+//           animate={{ opacity: 1, x: 0 }}
+//           transition={{ delay: 0.3, duration: 1, ease: 'easeOut' }}
+//           className="hidden lg:block w-1/2 relative"
+//         >
+//           <div className="absolute inset-0">
+//             <Canvas camera={{ position: [0, 0, 5], fov: 50 }} style={{ background: '#f9f9f9' }}>
+//               <ambientLight intensity={0.7} />
+//               <directionalLight position={[5, 5, 5]} intensity={1} />
+//               <Suspense fallback={null}>
+//                 <Model url="/room.glb" />
+//               </Suspense>
+//               <OrbitControls
+//                 autoRotate
+//                 autoRotateSpeed={1}
+//                 enableZoom={false}
+//                 enablePan={false}
+//                 maxPolarAngle={Math.PI / 2}
+//                 minPolarAngle={Math.PI / 2.5}
+//                 maxAzimuthAngle={Math.PI / 2}
+//                 minAzimuthAngle={-Math.PI / 2}
+//               />
+//             </Canvas>
+//           </div>
+//         </motion.div>
+//       </motion.div>
+//     </div>
+//   );
+// }
+// 'use client';
+
+// import { useEffect, useState, Suspense } from 'react';
+// import Image from 'next/image';
+// import Link from 'next/link';
+// import { useRouter } from 'next/navigation';
+// import Confetti from 'react-confetti';
+// import { Canvas } from '@react-three/fiber';
+// import { OrbitControls, useGLTF } from '@react-three/drei';
+// import { motion } from 'framer-motion';
+
+// interface LoginResponse {
+//   message?: string;
+//   token?: string;
+// }
+
+// function Model({ url }: { url: string }) {
+//   const { scene } = useGLTF(url);
+//   return <primitive object={scene} scale={1.5} />;
+// }
+// useGLTF.preload('/room.glb');
+
+// export default function LoginPage() {
+//   const router = useRouter();
+//   const [formData, setFormData] = useState({ email: '', password: '' });
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState('');
+//   const [success, setSuccess] = useState('');
+//   const [showConfetti, setShowConfetti] = useState(false);
+//   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+
+//   useEffect(() => {
+//     const updateSize = () => {
+//       setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+//     };
+//     updateSize();
+//     window.addEventListener('resize', updateSize);
+//     return () => window.removeEventListener('resize', updateSize);
+//   }, []);
+
+//   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     setFormData({ ...formData, [e.target.id]: e.target.value });
+//   };
+
+//   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+//     e.preventDefault();
+//     setError('');
+//     setSuccess('');
+
+//     if (!formData.email || !formData.password) {
+//       setError('Please fill in all fields.');
+//       return;
+//     }
+
+//     setLoading(true);
+//     try {
+//       const res = await fetch('http://13.48.25.101:8000/api/auth/login', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({
+//           Email: formData.email,
+//           Password: formData.password,
+//         }),
+//       });
+
+//       const data: LoginResponse = await res.json();
+//       if (!res.ok) throw new Error(data.message || 'Login failed');
+
+//       // ✅ Store token and trigger sync
+//       localStorage.setItem('token', data.token || '');
+//       window.dispatchEvent(new Event('storage'));
+
+//       setSuccess('Login successful! Redirecting...');
+//       setShowConfetti(true);
+
+//       // ✅ Redirect to home then reload page to update Navbar
+//       setTimeout(() => {
+//         router.push('/');
+//         setTimeout(() => {
+//           location.reload();
+//         }, 100);
+//       }, 3000);
+//     } catch (err) {
+//       const errorMessage = err instanceof Error ? err.message : 'Something went wrong.';
+//       setError(errorMessage);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <div className="relative min-h-screen flex items-center justify-center px-4 py-8 overflow-hidden bg-gradient-to-br from-[#e8f5f1] to-[#f2fcf8] animate-float">
+//       <Image
+//         src="/w1.svg"
+//         alt="Background"
+//         fill
+//         className="absolute inset-0 object-cover z-0 pointer-events-none"
+//         priority
+//       />
+
+//       {showConfetti && (
+//         <Confetti
+//           width={windowSize.width}
+//           height={windowSize.height}
+//           numberOfPieces={400}
+//           gravity={0.3}
+//           wind={0.01}
+//           recycle={false}
+//         />
+//       )}
+
+//       <motion.div
+//         initial={{ opacity: 0, y: 40 }}
+//         animate={{ opacity: 1, y: 0 }}
+//         transition={{ duration: 1, ease: 'easeOut' }}
+//         className="relative z-10 w-full max-w-5xl min-h-[500px] flex flex-col lg:flex-row rounded-[30px] bg-white/90 backdrop-blur-md shadow-[0_0_30px_rgba(0,0,0,0.15)] overflow-hidden animate-float"
+//       >
+//         {/* Left Form Side */}
+//         <motion.div
+//           initial={{ opacity: 0, x: -30 }}
+//           animate={{ opacity: 1, x: 0 }}
+//           transition={{ delay: 0.3, duration: 1, ease: 'easeOut' }}
+//           className="w-full lg:w-1/2 px-6 sm:px-10 py-10 sm:py-14 bg-[#eef4f3]/80 flex flex-col justify-center"
+//         >
+//           <h2 className="text-4xl font-extrabold text-[#0d4c3e] mb-2 bg-gradient-to-r from-[#0d4c3e] to-[#1f6f5b] bg-clip-text text-transparent animate-shimmer">
+//             Login
+//           </h2>
+//           <p className="text-sm text-gray-600 mb-8">Welcome back! Log into your account.</p>
+
+//           <form className="space-y-5" onSubmit={handleSubmit}>
+//             {(['email', 'password'] as const).map((field) => (
+//               <input
+//                 key={field}
+//                 id={field}
+//                 type={field === 'password' ? 'password' : 'email'}
+//                 placeholder={field[0].toUpperCase() + field.slice(1)}
+//                 value={formData[field]}
+//                 onChange={handleChange}
+//                 required
+//                 className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e] focus:shadow-glow transition-all duration-300"
+//               />
+//             ))}
+
+//             {loading && <p className="text-sm text-gray-600">Logging in...</p>}
+//             {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+//             {success && <p className="text-green-600 text-sm text-center">{success}</p>}
+
+//             <motion.button
+//               whileHover={{ scale: 1.03 }}
+//               transition={{ duration: 0.4 }}
+//               type="submit"
+//               disabled={loading}
+//               className={`w-full py-3 rounded-xl font-semibold transition-all duration-500 ${
+//                 loading
+//                   ? 'bg-gray-400 cursor-not-allowed text-white'
+//                   : 'bg-[#0d4c3e] text-white hover:bg-[#093b30] shadow-[0_0_12px_#0d4c3e80] hover:shadow-[0_0_20px_#0d4c3eff]'
+//               }`}
+//             >
+//               {loading ? 'Logging in...' : 'Login'}
+//             </motion.button>
+//           </form>
+
+//           <div className="text-sm text-gray-600 mt-6 flex flex-col sm:flex-row justify-between gap-3 sm:gap-0">
+//             <Link href="/signup" className="font-semibold underline hover:text-[#0d4c3e] w-fit">
+//               Don't have an account? Sign Up
+//             </Link>
+//           </div>
+//         </motion.div>
+
+//         {/* Right 3D Model Side */}
+//         <motion.div
+//           initial={{ opacity: 0, x: 30 }}
+//           animate={{ opacity: 1, x: 0 }}
+//           transition={{ delay: 0.3, duration: 1, ease: 'easeOut' }}
+//           className="hidden lg:block w-1/2 relative"
+//         >
+//           <div className="absolute inset-0">
+//             <Canvas camera={{ position: [0, 0, 5], fov: 50 }} style={{ background: '#f9f9f9' }}>
+//               <ambientLight intensity={0.7} />
+//               <directionalLight position={[5, 5, 5]} intensity={1} />
+//               <Suspense fallback={null}>
+//                 <Model url="/room.glb" />
+//               </Suspense>
+//               <OrbitControls
+//                 autoRotate
+//                 autoRotateSpeed={1}
+//                 enableZoom={false}
+//                 enablePan={false}
+//                 maxPolarAngle={Math.PI / 2}
+//                 minPolarAngle={Math.PI / 2.5}
+//                 maxAzimuthAngle={Math.PI / 2}
+//                 minAzimuthAngle={-Math.PI / 2}
+//               />
+//             </Canvas>
+//           </div>
+//         </motion.div>
+//       </motion.div>
+//     </div>
+//   );
+// }
+// 'use client';
+
+// import { useEffect, useState, Suspense } from 'react';
+// import Image from 'next/image';
+// import Link from 'next/link';
+// import { useRouter } from 'next/navigation';
+// import Confetti from 'react-confetti';
+// import { Canvas } from '@react-three/fiber';
+// import { OrbitControls, useGLTF } from '@react-three/drei';
+// import { motion } from 'framer-motion';
+
+// interface LoginResponse {
+//   message?: string;
+//   token?: string;
+// }
+
+// function Model({ url }: { url: string }) {
+//   const { scene } = useGLTF(url);
+//   return <primitive object={scene} scale={1.5} />;
+// }
+// useGLTF.preload('/room.glb');
+
+// export default function LoginPage() {
+//   const router = useRouter();
+//   const [formData, setFormData] = useState({ email: '', password: '' });
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState('');
+//   const [success, setSuccess] = useState('');
+//   const [showConfetti, setShowConfetti] = useState(false);
+//   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+
+//   // ✅ Redirect if already logged in
+//   useEffect(() => {
+//     if (typeof window !== 'undefined') {
+//       const token = localStorage.getItem('token');
+//       if (token && window.location.pathname === '/login') {
+//         router.replace('/');
+//       }
+//     }
+//   }, []);
+
+//   useEffect(() => {
+//     const updateSize = () => {
+//       setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+//     };
+//     updateSize();
+//     window.addEventListener('resize', updateSize);
+//     return () => window.removeEventListener('resize', updateSize);
+//   }, []);
+
+//   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     setFormData({ ...formData, [e.target.id]: e.target.value });
+//   };
+
+//   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+//     e.preventDefault();
+//     setError('');
+//     setSuccess('');
+
+//     if (!formData.email || !formData.password) {
+//       setError('Please fill in all fields.');
+//       return;
+//     }
+
+//     setLoading(true);
+//     try {
+//       const res = await fetch('http://13.48.25.101:8000/api/auth/login', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({
+//           Email: formData.email,
+//           Password: formData.password,
+//         }),
+//       });
+
+//       const data: LoginResponse = await res.json();
+//       if (!res.ok) throw new Error(data.message || 'Login failed');
+
+//       // ✅ Save token and sync
+//       localStorage.setItem('token', data.token || '');
+//       window.dispatchEvent(new Event('storage'));
+
+//       setSuccess('Login successful! Redirecting...');
+//       setShowConfetti(true);
+
+//       // ✅ Redirect + reload to trigger Navbar update
+//       setTimeout(() => {
+//         router.push('/');
+//         setTimeout(() => {
+//           location.reload();
+//         }, 100);
+//       }, 3000); // same as confetti duration
+//     } catch (err) {
+//       const errorMessage = err instanceof Error ? err.message : 'Something went wrong.';
+//       setError(errorMessage);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <div className="relative min-h-screen flex items-center justify-center px-4 py-8 overflow-hidden bg-gradient-to-br from-[#e8f5f1] to-[#f2fcf8] animate-float">
+//       <Image
+//         src="/w1.svg"
+//         alt="Background"
+//         fill
+//         className="absolute inset-0 object-cover z-0 pointer-events-none"
+//         priority
+//       />
+
+//       {showConfetti && (
+//         <Confetti
+//           width={windowSize.width}
+//           height={windowSize.height}
+//           numberOfPieces={400}
+//           gravity={0.3}
+//           wind={0.01}
+//           recycle={false}
+//         />
+//       )}
+
+//       <motion.div
+//         initial={{ opacity: 0, y: 40 }}
+//         animate={{ opacity: 1, y: 0 }}
+//         transition={{ duration: 1, ease: 'easeOut' }}
+//         className="relative z-10 w-full max-w-5xl min-h-[500px] flex flex-col lg:flex-row rounded-[30px] bg-white/90 backdrop-blur-md shadow-[0_0_30px_rgba(0,0,0,0.15)] overflow-hidden animate-float"
+//       >
+//         {/* Left Form Side */}
+//         <motion.div
+//           initial={{ opacity: 0, x: -30 }}
+//           animate={{ opacity: 1, x: 0 }}
+//           transition={{ delay: 0.3, duration: 1, ease: 'easeOut' }}
+//           className="w-full lg:w-1/2 px-6 sm:px-10 py-10 sm:py-14 bg-[#eef4f3]/80 flex flex-col justify-center"
+//         >
+//           <h2 className="text-4xl font-extrabold text-[#0d4c3e] mb-2 bg-gradient-to-r from-[#0d4c3e] to-[#1f6f5b] bg-clip-text text-transparent animate-shimmer">
+//             Login
+//           </h2>
+//           <p className="text-sm text-gray-600 mb-8">Welcome back! Log into your account.</p>
+
+//           <form className="space-y-5" onSubmit={handleSubmit}>
+//             {(['email', 'password'] as const).map((field) => (
+//               <input
+//                 key={field}
+//                 id={field}
+//                 type={field === 'password' ? 'password' : 'email'}
+//                 placeholder={field[0].toUpperCase() + field.slice(1)}
+//                 value={formData[field]}
+//                 onChange={handleChange}
+//                 required
+//                 className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e] focus:shadow-glow transition-all duration-300"
+//               />
+//             ))}
+
+//             {loading && <p className="text-sm text-gray-600">Logging in...</p>}
+//             {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+//             {success && <p className="text-green-600 text-sm text-center">{success}</p>}
+
+//             <motion.button
+//               whileHover={{ scale: 1.03 }}
+//               transition={{ duration: 0.4 }}
+//               type="submit"
+//               disabled={loading}
+//               className={`w-full py-3 rounded-xl font-semibold transition-all duration-500 ${
+//                 loading
+//                   ? 'bg-gray-400 cursor-not-allowed text-white'
+//                   : 'bg-[#0d4c3e] text-white hover:bg-[#093b30] shadow-[0_0_12px_#0d4c3e80] hover:shadow-[0_0_20px_#0d4c3eff]'
+//               }`}
+//             >
+//               {loading ? 'Logging in...' : 'Login'}
+//             </motion.button>
+//           </form>
+
+//           <div className="text-sm text-gray-600 mt-6 flex flex-col sm:flex-row justify-between gap-3 sm:gap-0">
+//             <Link href="/signup" className="font-semibold underline hover:text-[#0d4c3e] w-fit">
+//               Don't have an account? Sign Up
+//             </Link>
+//           </div>
+//         </motion.div>
+
+//         {/* Right 3D Model Side */}
+//         <motion.div
+//           initial={{ opacity: 0, x: 30 }}
+//           animate={{ opacity: 1, x: 0 }}
+//           transition={{ delay: 0.3, duration: 1, ease: 'easeOut' }}
+//           className="hidden lg:block w-1/2 relative"
+//         >
+//           <div className="absolute inset-0">
+//             <Canvas camera={{ position: [0, 0, 5], fov: 50 }} style={{ background: '#f9f9f9' }}>
+//               <ambientLight intensity={0.7} />
+//               <directionalLight position={[5, 5, 5]} intensity={1} />
+//               <Suspense fallback={null}>
+//                 <Model url="/room.glb" />
+//               </Suspense>
+//               <OrbitControls
+//                 autoRotate
+//                 autoRotateSpeed={1}
+//                 enableZoom={false}
+//                 enablePan={false}
+//                 maxPolarAngle={Math.PI / 2}
+//                 minPolarAngle={Math.PI / 2.5}
+//                 maxAzimuthAngle={Math.PI / 2}
+//                 minAzimuthAngle={-Math.PI / 2}
+//               />
+//             </Canvas>
+//           </div>
+//         </motion.div>
+//       </motion.div>
+//     </div>
+//   );
+// }
+// 'use client';
+
+// import { useEffect, useState, Suspense } from 'react';
+// import Image from 'next/image';
+// import Link from 'next/link';
+// import { useRouter } from 'next/navigation';
+// import Confetti from 'react-confetti';
+// import { Canvas } from '@react-three/fiber';
+// import { OrbitControls, useGLTF } from '@react-three/drei';
+// import { motion } from 'framer-motion';
+
+// interface LoginResponse {
+//   message?: string;
+//   token?: string;
+// }
+
+// function Model({ url }: { url: string }) {
+//   const { scene } = useGLTF(url);
+//   return <primitive object={scene} scale={1.5} />;
+// }
+// useGLTF.preload('/room.glb');
+
+// export default function LoginPage() {
+//   const router = useRouter();
+//   const [formData, setFormData] = useState({ email: '', password: '' });
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState('');
+//   const [success, setSuccess] = useState('');
+//   const [showConfetti, setShowConfetti] = useState(false);
+//   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+
+//   // ✅ Redirect if already logged in
+//   useEffect(() => {
+//     const token = localStorage.getItem('token');
+//     if (token && window.location.pathname === '/login') {
+//       router.replace('/');
+//     }
+//   }, [router]);
+
+//   useEffect(() => {
+//     const updateSize = () => {
+//       setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+//     };
+//     updateSize();
+//     window.addEventListener('resize', updateSize);
+//     return () => window.removeEventListener('resize', updateSize);
+//   }, []);
+
+//   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     setFormData({ ...formData, [e.target.id]: e.target.value });
+//   };
+
+//   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+//     e.preventDefault();
+//     setError('');
+//     setSuccess('');
+
+//     if (!formData.email || !formData.password) {
+//       setError('Please fill in all fields.');
+//       return;
+//     }
+
+//     setLoading(true);
+//     try {
+//       const res = await fetch('http://13.48.25.101:8000/api/auth/login', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({
+//           Email: formData.email,
+//           Password: formData.password,
+//         }),
+//       });
+
+//       const data: LoginResponse = await res.json();
+//       if (!res.ok) throw new Error(data.message || 'Login failed');
+
+//       // ✅ Save token and sync
+//       localStorage.setItem('token', data.token || '');
+//       window.dispatchEvent(new Event('storage'));
+
+//       setSuccess('Login successful! Redirecting...');
+//       setShowConfetti(true);
+
+//       // ✅ Fast redirect + refresh to update UI
+//       setTimeout(() => {
+//         router.push('/');
+//         location.reload();
+//       }, ); // Only 0.5s delay
+//     } catch (err) {
+//       const errorMessage = err instanceof Error ? err.message : 'Something went wrong.';
+//       setError(errorMessage);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <div className="relative min-h-screen flex items-center justify-center px-4 py-8 overflow-hidden bg-gradient-to-br from-[#e8f5f1] to-[#f2fcf8] animate-float">
+//       <Image
+//         src="/w1.svg"
+//         alt="Background"
+//         fill
+//         className="absolute inset-0 object-cover z-0 pointer-events-none"
+//         priority
+//       />
+
+//       {showConfetti && (
+//         <Confetti
+//           width={windowSize.width}
+//           height={windowSize.height}
+//           numberOfPieces={400}
+//           gravity={0.3}
+//           wind={0.01}
+//           recycle={false}
+//         />
+//       )}
+
+//       <motion.div
+//         initial={{ opacity: 0, y: 40 }}
+//         animate={{ opacity: 1, y: 0 }}
+//         transition={{ duration: 1, ease: 'easeOut' }}
+//         className="relative z-10 w-full max-w-5xl min-h-[500px] flex flex-col lg:flex-row rounded-[30px] bg-white/90 backdrop-blur-md shadow-[0_0_30px_rgba(0,0,0,0.15)] overflow-hidden animate-float"
+//       >
+//         {/* Left Form Side */}
+//         <motion.div
+//           initial={{ opacity: 0, x: -30 }}
+//           animate={{ opacity: 1, x: 0 }}
+//           transition={{ delay: 0.3, duration: 1, ease: 'easeOut' }}
+//           className="w-full lg:w-1/2 px-6 sm:px-10 py-10 sm:py-14 bg-[#eef4f3]/80 flex flex-col justify-center"
+//         >
+//           <h2 className="text-4xl font-extrabold text-[#0d4c3e] mb-2 bg-gradient-to-r from-[#0d4c3e] to-[#1f6f5b] bg-clip-text text-transparent animate-shimmer">
+//             Login
+//           </h2>
+//           <p className="text-sm text-gray-600 mb-8">Welcome back! Log into your account.</p>
+
+//           <form className="space-y-5" onSubmit={handleSubmit}>
+//             {(['email', 'password'] as const).map((field) => (
+//               <input
+//                 key={field}
+//                 id={field}
+//                 type={field === 'password' ? 'password' : 'email'}
+//                 placeholder={field[0].toUpperCase() + field.slice(1)}
+//                 value={formData[field]}
+//                 onChange={handleChange}
+//                 required
+//                 className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e] focus:shadow-glow transition-all duration-300"
+//               />
+//             ))}
+
+//             {loading && <p className="text-sm text-gray-600">Logging in...</p>}
+//             {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+//             {success && <p className="text-green-600 text-sm text-center">{success}</p>}
+
+//             <motion.button
+//               whileHover={{ scale: 1.03 }}
+//               transition={{ duration: 0.4 }}
+//               type="submit"
+//               disabled={loading}
+//               className={`w-full py-3 rounded-xl font-semibold transition-all duration-500 ${
+//                 loading
+//                   ? 'bg-gray-400 cursor-not-allowed text-white'
+//                   : 'bg-[#0d4c3e] text-white hover:bg-[#093b30] shadow-[0_0_12px_#0d4c3e80] hover:shadow-[0_0_20px_#0d4c3eff]'
+//               }`}
+//             >
+//               {loading ? 'Logging in...' : 'Login'}
+//             </motion.button>
+//           </form>
+
+//           <div className="text-sm text-gray-600 mt-6 flex flex-col sm:flex-row justify-between gap-3 sm:gap-0">
+//             <Link href="/signup" className="font-semibold underline hover:text-[#0d4c3e] w-fit">
+//               Dont have an account? Sign Up
+//             </Link>
+//           </div>
+//         </motion.div>
+
+//         {/* Right 3D Model Side */}
+//         <motion.div
+//           initial={{ opacity: 0, x: 30 }}
+//           animate={{ opacity: 1, x: 0 }}
+//           transition={{ delay: 0.3, duration: 1, ease: 'easeOut' }}
+//           className="hidden lg:block w-1/2 relative"
+//         >
+//           <div className="absolute inset-0">
+//             <Canvas camera={{ position: [0, 0, 5], fov: 50 }} style={{ background: '#f9f9f9' }}>
+//               <ambientLight intensity={0.7} />
+//               <directionalLight position={[5, 5, 5]} intensity={1} />
+//               <Suspense fallback={null}>
+//                 <Model url="/room.glb" />
+//               </Suspense>
+//               <OrbitControls
+//                 autoRotate
+//                 autoRotateSpeed={1}
+//                 enableZoom={false}
+//                 enablePan={false}
+//                 maxPolarAngle={Math.PI / 2}
+//                 minPolarAngle={Math.PI / 2.5}
+//                 maxAzimuthAngle={Math.PI / 2}
+//                 minAzimuthAngle={-Math.PI / 2}
+//               />
+//             </Canvas>
+//           </div>
+//         </motion.div>
+//       </motion.div>
+//     </div>
+//   );
+// }
 'use client';
 
+import { useEffect, useState, Suspense } from 'react';
 import Image from 'next/image';
-import { useState, Suspense } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import Confetti from 'react-confetti';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, useGLTF } from '@react-three/drei';
-
-interface User {
-  Name?: string;
-  Email?: string;
-}
+import { motion } from 'framer-motion';
 
 interface LoginResponse {
-  token?: string;
   message?: string;
-  user?: User;
+  token?: string;
 }
 
-// 3D Model Loader
 function Model({ url }: { url: string }) {
   const { scene } = useGLTF(url);
   return <primitive object={scene} scale={1.5} />;
 }
-
-// ✅ Preload the model
 useGLTF.preload('/room.glb');
 
-export default function SignInPage() {
+export default function LoginPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token && window.location.pathname === '/login') {
+      router.replace('/');
+    }
+  }, [router]);
+
+  useEffect(() => {
+    const updateSize = () => {
+      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    };
+    updateSize();
+    window.addEventListener('resize', updateSize);
+    return () => window.removeEventListener('resize', updateSize);
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.id]: e.target.value });
+    setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -3657,8 +5396,8 @@ export default function SignInPage() {
     setError('');
     setSuccess('');
 
-    if (!form.email || !form.password) {
-      setError('Email and password are required.');
+    if (!formData.email || !formData.password) {
+      setError('Please fill in all fields.');
       return;
     }
 
@@ -3668,28 +5407,26 @@ export default function SignInPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          Email: form.email,
-          Password: form.password,
+          Email: formData.email,
+          Password: formData.password,
         }),
       });
 
       const data: LoginResponse = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Login failed');
 
-      if (res.ok && data.token) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('userName', data.user?.Name || 'User');
+      localStorage.setItem('token', data.token || '');
+      window.dispatchEvent(new Event('storage'));
 
-        // ✅ Notify navbar and redirect home
-        window.dispatchEvent(new Event('storage'));
+      setSuccess('Login successful! Redirecting...');
+      setShowConfetti(true);
+
+      setTimeout(() => {
         router.push('/');
-
-        setSuccess('Logged in successfully!');
-      } else {
-        setError(data.message || 'Login failed');
-      }
+        location.reload();
+      }, 500);
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Server unavailable, please try again shortly.';
+      const errorMessage = err instanceof Error ? err.message : 'Something went wrong.';
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -3697,82 +5434,91 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center px-4 py-8 overflow-hidden">
-      {/* Background */}
+    <div className="relative min-h-screen flex items-center justify-center px-4 py-8 overflow-hidden bg-gradient-to-br from-[#e8f5f1] to-[#f2fcf8] animate-float">
       <Image
         src="/w1.svg"
         alt="Background"
         fill
-        className="absolute inset-0 object-cover z-0"
+        className="absolute inset-0 object-cover z-0 pointer-events-none"
         priority
       />
 
-      {/* Card */}
-      <div className="relative z-10 w-full max-w-5xl min-h-[500px] flex flex-col lg:flex-row rounded-[30px] bg-white/90 backdrop-blur-sm overflow-hidden shadow-2xl">
-        {/* Form Side */}
-        <div className="w-full lg:w-1/2 px-6 sm:px-10 py-8 sm:py-12 bg-[#eef4f3]/80 flex flex-col justify-center">
-          <h2 className="text-2xl sm:text-3xl font-bold text-[#0d4c3e] mb-1">Login</h2>
-          <p className="text-sm text-gray-600 mb-8">If you are already a member, easily log in</p>
+      {showConfetti && (
+        <Confetti
+          width={windowSize.width}
+          height={windowSize.height}
+          numberOfPieces={400}
+          gravity={0.3}
+          wind={0.01}
+          recycle={false}
+        />
+      )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <input
-              id="email"
-              type="email"
-              placeholder="Email"
-              value={form.email}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e]"
-            />
-            <input
-              id="password"
-              type="password"
-              placeholder="Password"
-              value={form.password}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e]"
-            />
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, ease: 'easeOut' }}
+        className="relative z-10 w-full max-w-5xl min-h-[500px] flex flex-col lg:flex-row rounded-[30px] bg-white/90 backdrop-blur-md shadow-[0_0_30px_rgba(0,0,0,0.15)] overflow-hidden animate-float"
+      >
+        {/* Left Form Side */}
+        <motion.div
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3, duration: 1, ease: 'easeOut' }}
+          className="w-full lg:w-1/2 px-6 sm:px-10 py-10 sm:py-14 bg-[#eef4f3]/80 flex flex-col justify-center"
+        >
+          <h2 className="text-4xl font-extrabold text-[#0d4c3e] mb-2 bg-gradient-to-r from-[#0d4c3e] to-[#1f6f5b] bg-clip-text text-transparent animate-shimmer">
+            Login
+          </h2>
+          <p className="text-sm text-gray-600 mb-8">Welcome back! Log into your account.</p>
 
-            {loading && <p className="text-sm text-gray-600">Connecting to server...</p>}
-            {error && <p className="text-sm text-red-500">{error}</p>}
-            {success && <p className="text-sm text-green-600">{success}</p>}
+          <form className="space-y-5" onSubmit={handleSubmit}>
+            {(['email', 'password'] as const).map((field) => (
+              <input
+                key={field}
+                id={field}
+                type={field === 'password' ? 'password' : 'email'}
+                placeholder={field[0].toUpperCase() + field.slice(1)}
+                value={formData[field]}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0d4c3e] focus:shadow-glow transition-all duration-300"
+              />
+            ))}
 
-            <button
+            {loading && <p className="text-sm text-gray-600">Logging in...</p>}
+            {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+            {success && <p className="text-green-600 text-sm text-center">{success}</p>}
+
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              transition={{ duration: 0.4 }}
               type="submit"
               disabled={loading}
-              className={`w-full text-white py-3 rounded-xl font-semibold transition-all duration-500
-                ${
-                  loading
-                    ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-[#0d4c3e] hover:bg-[#0b3d31] shadow-[0_0_15px_#0d4c3eaa] hover:shadow-[0_0_25px_#0d4c3eff]'
-                }`}
+              className={`w-full py-3 rounded-xl font-semibold transition-all duration-500 ${
+                loading
+                  ? 'bg-gray-400 cursor-not-allowed text-white'
+                  : 'bg-[#0d4c3e] text-white hover:bg-[#093b30] shadow-[0_0_12px_#0d4c3e80] hover:shadow-[0_0_20px_#0d4c3eff]'
+              }`}
             >
-              {loading ? 'Signing in...' : 'Login'}
-            </button>
-
-            <div className="relative flex items-center justify-center">
-              <div className="absolute h-px bg-gray-300 w-full"></div>
-              <span className="bg-[#eef4f3] px-3 text-sm text-gray-500">OR</span>
-            </div>
+              {loading ? 'Logging in...' : 'Login'}
+            </motion.button>
           </form>
 
-          <div className="text-sm text-gray-600 mt-4 flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-0">
-            <span></span>
-            <div>
-              <span>Don&rsquo;t have an account?</span>
-              <button
-                onClick={() => router.push('/signup')}
-                className="ml-1 font-semibold underline hover:text-[#0d4c3e]"
-              >
-                Sign Up
-              </button>
-            </div>
+          <div className="text-sm text-gray-600 mt-6 flex flex-col sm:flex-row justify-between gap-3 sm:gap-0">
+            <Link href="/signup" className="font-semibold underline hover:text-[#0d4c3e] w-fit">
+              Don&apos;t have an account? Sign Up
+            </Link>
           </div>
-        </div>
+        </motion.div>
 
-        {/* 3D Model Side */}
-        <div className="hidden lg:block w-1/2 relative">
+        {/* Right 3D Model Side */}
+        <motion.div
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3, duration: 1, ease: 'easeOut' }}
+          className="hidden lg:block w-1/2 relative"
+        >
           <div className="absolute inset-0">
             <Canvas camera={{ position: [0, 0, 5], fov: 50 }} style={{ background: '#f9f9f9' }}>
               <ambientLight intensity={0.7} />
@@ -3781,8 +5527,8 @@ export default function SignInPage() {
                 <Model url="/room.glb" />
               </Suspense>
               <OrbitControls
-                autoRotate={false}
-                autoRotateSpeed={1.5}
+                autoRotate
+                autoRotateSpeed={1}
                 enableZoom={false}
                 enablePan={false}
                 maxPolarAngle={Math.PI / 2}
@@ -3792,8 +5538,8 @@ export default function SignInPage() {
               />
             </Canvas>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }

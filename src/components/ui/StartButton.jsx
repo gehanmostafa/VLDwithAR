@@ -14,7 +14,7 @@ export default function StartButton() {
         whileTap={{ scale: 0.95 }}
         className="group relative flex items-center gap-3 bg-white text-[#0d4c3e] px-6 sm:px-8 py-2 sm:py-3 rounded-full font-semibold transition-all duration-300 hover:pl-10 shadow-md hover:shadow-xl"
       >
-        <Link href="/uploadIMG" className="transition-all duration-300 uppercase">
+        <Link href="/howtouse" className="transition-all duration-300 uppercase">
           Start Now !
         </Link>
 
